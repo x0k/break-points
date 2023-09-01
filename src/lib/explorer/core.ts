@@ -88,13 +88,13 @@ export function getNodeId(node: ExplorerNode): ExplorerNodeId {
 }
 
 export function traverse(
-  node: ExplorerNode,
+  nodes: ExplorerNode[],
   callback: (node: ExplorerNode) => void
 ): void {
-  callback(node)
-  if (isFolder(node)) {
-    for (const child of node.children) {
-      traverse(child, callback)
+  for (const node of nodes) {
+    callback(node)
+    if (isFolder(node)) {
+      traverse(node.children, callback)
     }
   }
 }
@@ -103,17 +103,19 @@ export function extractNodeIds(
   node: ExplorerNode,
   selector?: (node: ExplorerNode) => boolean
 ): ExplorerNodeId[] {
-  const ids: ExplorerNodeId[] = []
-  traverse(
-    node,
-    selector
-      ? (node) => {
-          if (selector(node)) {
-            ids.push(node.id)
+  const ids: ExplorerNodeId[] = !selector || selector(node) ? [node.id] : []
+  if (isFolder(node)) {
+    traverse(
+      node.children,
+      selector
+        ? (node) => {
+            if (selector(node)) {
+              ids.push(node.id)
+            }
           }
-        }
-      : (node) => ids.push(node.id)
-  )
+        : (node) => ids.push(node.id)
+    )
+  }
   return ids
 }
 

@@ -1,11 +1,14 @@
 <script lang="ts">
   import { Download, Upload } from 'lucide-svelte'
   import { parse, stringify } from 'devalue'
+  import { get } from 'svelte/store'
 
   import {
     ExplorerContainer,
     ExplorerService,
     LocationService,
+    extractSelectedSubTree,
+    mergeTrees,
   } from '@/lib/explorer'
   import { nodes, open, selected } from '@/lib/state'
   import { YandexGeocodeAPI } from '@/lib/yandex-geocode-api'
@@ -34,15 +37,21 @@
 
   async function exportSelectedNodes() {
     try {
-      const nodes = explorerService.getSelectedSubTreeOrWholeTree()
+      const selectedNodes = get(selected)
+      const allNodes = get(nodes)
+      const isSelectionEmpty = selectedNodes.size === 0
+      const tree = isSelectionEmpty
+        ? allNodes
+        : extractSelectedSubTree(allNodes, selectedNodes)
       await blobSave(
         `BP_${new Date().toISOString().slice(0, -5)}.json`,
-        makeJSONBlob(stringify(nodes))
+        makeJSONBlob(stringify(tree))
       )
       notificationsService.showNotification({
         type: NotificationType.Success,
-        message:
-          'You successfully export selected (either all if no selection) points',
+        message: `You successfully export ${
+          isSelectionEmpty ? 'all' : 'selected'
+        } points`,
       })
     } catch (error) {
       notificationsService.showNotification({
@@ -63,8 +72,8 @@
         mimeTypes: [JSON_MIME_TYPE],
       })
       const text = await blob.text()
-      const nodes = parse(text)
-      explorerService.importNodes(nodes)
+      const newNodes = parse(text)
+      nodes.update((ns) => mergeTrees(ns, newNodes))
       notificationsService.showNotification({
         type: NotificationType.Success,
         message: `Points successfully imported`,

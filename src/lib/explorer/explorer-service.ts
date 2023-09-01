@@ -15,8 +15,6 @@ import {
   traverse,
   isPoint,
   type PointNode,
-  mergeTrees,
-  extractSelectedSubTree,
 } from './core'
 
 export interface ExplorerServiceOptions {
@@ -109,27 +107,14 @@ export class ExplorerService implements IExplorerService {
     const selected = get(this.options.selected)
     const nodes = get(this.options.nodes)
     const selectedPoints: PointNode[] = []
-    function visit(node: ExplorerNode) {
+    traverse(nodes, (node: ExplorerNode) => {
       if (selected.has(node.id) && isPoint(node)) {
         selectedPoints.push(node)
       }
-    }
-    nodes.forEach((n) => traverse(n, visit))
+    })
     const points = selectedPoints
       .map((n) => `${n.location.latitude}%2C${n.location.longitude}`)
       .join('~')
-    window.open(
-      `${BASE_MAP_LINK}?rtext=${points}&mode=routes&rtt=auto&z=11`
-    )
-  }
-
-  getSelectedSubTreeOrWholeTree = (): ExplorerNode[] => {
-    const selected = get(this.options.selected)
-    const nodes = get(this.options.nodes)
-    return selected.size === 0 ? nodes : extractSelectedSubTree(nodes, selected)
-  }
-
-  importNodes = (nodes: ExplorerNode[]) => {
-    this.options.nodes.update((ns) => mergeTrees(ns, nodes))
+    window.open(`${BASE_MAP_LINK}?rtext=${points}&mode=routes&rtt=auto&z=11`)
   }
 }
