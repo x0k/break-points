@@ -41,7 +41,9 @@
     <div class="flex flex-col gap-3 pt-3 ml-4">
       {#each node.children as n}
         <Node node={n} {open} {selected} {selectNode} {openFolder}>
-          <slot name="append" slot="append" node={n} />
+          <svelte:fragment slot="append" let:node>
+            <slot name="append" {node} />
+          </svelte:fragment>
         </Node>
       {/each}
     </div>
