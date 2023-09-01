@@ -12,7 +12,7 @@
     type ExplorerNode,
     type ILocationService,
   } from '../core'
-  import { RemoveDialog, Node, CreateDialog } from '../components'
+  import { RemoveEntityForm, Node, CreateEntityForm } from '../components'
 
   export let explorerService: IExplorerService
   export let locationService: ILocationService
@@ -116,7 +116,7 @@
 </div>
 
 <Dialog open={isCreateDialogOpen} onClose={closeCreateDialog}>
-  <CreateDialog
+  <CreateEntityForm
     {locationService}
     {notificationsService}
     parentId={createDialogOptions.parentId}
@@ -125,7 +125,7 @@
 </Dialog>
 
 <Dialog open={isRemoveDialogOpen} onClose={closeRemoveDialog}>
-  <RemoveDialog
+  <RemoveEntityForm
     {nodes}
     nodeId={removeDialogOptions.nodeId}
     onSubmit={onRemoveDialogSubmit}

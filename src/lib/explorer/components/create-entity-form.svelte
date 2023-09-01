@@ -115,29 +115,31 @@
 >
   <h3 class="font-bold text-lg">Create entity</h3>
 
-  <div class="form-control">
-    <label class="label cursor-pointer">
-      <span class="label-text">Folder</span>
-      <input
-        bind:group={nodeType}
-        type="radio"
-        name="node-type"
-        class="radio"
-        value={NodeType.Folder}
-      />
-    </label>
-  </div>
-  <div class="form-control">
-    <label class="label cursor-pointer">
-      <span class="label-text">Point</span>
-      <input
-        bind:group={nodeType}
-        type="radio"
-        name="node-type"
-        class="radio"
-        value={NodeType.Point}
-      />
-    </label>
+  <div class="flex flex-row gap-4">
+    <div class="form-control">
+      <label class="label cursor-pointer gap-2">
+        <input
+          bind:group={nodeType}
+          type="radio"
+          name="node-type"
+          class="radio"
+          value={NodeType.Point}
+        />
+        <span class="label-text">Point</span>
+      </label>
+    </div>
+    <div class="form-control">
+      <label class="label cursor-pointer gap-2">
+        <input
+          bind:group={nodeType}
+          type="radio"
+          name="node-type"
+          class="radio"
+          value={NodeType.Folder}
+        />
+        <span class="label-text">Folder</span>
+      </label>
+    </div>
   </div>
   {#if nodeType === NodeType.Folder}
     <div class="form-control w-full">
