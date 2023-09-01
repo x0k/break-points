@@ -1,13 +1,6 @@
 <script lang="ts">
-  import type {
-    DomEvent,
-    DomEventHandlerObject,
-    YMap,
-    YMapListener,
-    YMapMarker,
-  } from '@yandex/ymaps3-types'
+  import type { YMap } from '@yandex/ymaps3-types'
   import { onMount } from 'svelte'
-  import { MapPin } from 'lucide-svelte'
 
   import {
     isEqual,
@@ -15,6 +8,7 @@
     makeGeoLocation,
     toPair,
   } from './geo-location'
+  import type { YMapDefaultMarker } from '@yandex/ymaps3-types/packages/markers'
 
   export let onPositionUpdate: (location: GeoLocation) => void
   export let location: GeoLocation
@@ -22,22 +16,9 @@
 
   let mapElement: HTMLDivElement
 
-  let markerElement: HTMLElement
-
   let map: YMap
 
-  let marker: YMapMarker
-
-  let listener: YMapListener
-
-  function domEventHandler(object: DomEventHandlerObject, event: DomEvent) {
-    if (object?.type === 'marker') {
-      onPositionUpdate({
-        longitude: event.coordinates[0],
-        latitude: event.coordinates[1],
-      })
-    }
-  }
+  let marker: YMapDefaultMarker
 
   $: if (marker) {
     marker.update({
@@ -66,45 +47,22 @@
 
     map.addChild(new ymaps3.YMapDefaultSchemeLayer({}))
 
-    // const controls = new ymaps3.YMapControls({
-    //   position: 'bottom right',
-    // })
-
-    // const button = new ymaps3.YMapControlButton({
-    //   text: 'Привет',
-    //   onClick: () => alert('Привет Мир!'),
-    // })
-
-    // controls.addChild(button)
-
-    // controls.addChild(new ymaps3.YMapGeolocationControl())
-
-    // map.addChild(controls)
-
     map.addChild(new ymaps3.YMapDefaultFeaturesLayer({}))
 
-    marker = new ymaps3.YMapMarker(
-      {
-        coordinates: loc,
-        draggable: true,
-        mapFollowsOnDrag: true,
-      },
-      markerElement
+    const { YMapDefaultMarker } = await ymaps3.import(
+      '@yandex/ymaps3-markers@0.0.1'
     )
 
-    map.addChild(marker)
-
-    listener = new ymaps3.YMapListener({
-      onPointerUp: domEventHandler,
-      onMouseUp: domEventHandler,
-      onTouchEnd: domEventHandler,
+    marker = new YMapDefaultMarker({
+      coordinates: loc,
+      draggable: true,
+      mapFollowsOnDrag: true,
+      onDragEnd: (coords) =>
+        onPositionUpdate(makeGeoLocation(coords[0], coords[1])),
     })
 
-    map.addChild(listener)
+    map.addChild(marker)
   })
 </script>
 
 <div bind:this={mapElement} class="w-full h-[60vh]" />
-<div bind:this={markerElement}>
-  <MapPin color="red" size={32} />
-</div>
