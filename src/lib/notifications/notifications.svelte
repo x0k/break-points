@@ -17,7 +17,10 @@
 
 <div class="toast">
   {#each $notifications as n}
-    <div class={`alert alert-${n.data.type}`}>
+    <div
+      class="alert data-[status=error]:alert-error data-[status=info]:alert-info data-[status=success]:alert-success data-[status=warning]:alert-warning"
+      data-status={n.data.type}
+    >
       <svelte:component this={ICONS[n.data.type]} />
       <span>{n.data.message}</span>
     </div>
