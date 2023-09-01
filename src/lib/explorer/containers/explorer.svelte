@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AlertTriangle, Plus, Trash } from 'lucide-svelte'
+  import { Plus, Trash, X } from 'lucide-svelte'
 
   import type { INotificationsService } from '@/lib/notifications'
   import Dialog from '@/lib/dialog.svelte'
@@ -65,7 +65,7 @@
   }
 </script>
 
-<div class="flex flex-col gap-3 justify-stretch">
+<div class="flex flex-col gap-4 justify-stretch">
   {#each $nodes as n}
     <Node
       node={n}
@@ -82,7 +82,7 @@
             ><Plus size={16} /></button
           >
         {:else}
-          <span class="truncate max-w-xs" dir="rtl">
+          <span class="truncate font-thin grow-1" dir="rtl">
             {node.address}
           </span>
         {/if}
@@ -99,19 +99,17 @@
       <Plus /> Add
     </button>
   {:else}
-    <span>You selected {$selected.size} points</span>
     <div class="flex flex-row gap-2">
       <button
-        class="btn btn-sm btn-primary flex-1"
+        class="btn btn-primary flex-1"
         on:click={explorerService.openMapWithSelectedPoints}
-      >
-        Continue</button
+        >Continue with {$selected.size} points</button
       >
       <button
-        class="btn btn-sm btn-secondary flex-1"
+        class="btn btn-secondary"
         on:click={explorerService.clearSelection}
       >
-        Clear selection
+        <X />
       </button>
     </div>
   {/if}

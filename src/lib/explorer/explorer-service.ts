@@ -15,8 +15,6 @@ import {
   traverse,
   isPoint,
   type PointNode,
-  type RecursiveVisitorNode,
-  makeRecursiveTraverser,
   mergeTrees,
   extractSelectedSubTree,
 } from './core'
@@ -27,8 +25,7 @@ export interface ExplorerServiceOptions {
   selected: Writable<Set<ExplorerNodeId>>
 }
 
-const BASE_MAP_LINK = `https://yandex.com/maps/`
-
+const BASE_MAP_LINK = 'https://yandex.com/maps/'
 export class ExplorerService implements IExplorerService {
   constructor(private options: ExplorerServiceOptions) {}
 
@@ -121,7 +118,9 @@ export class ExplorerService implements IExplorerService {
     const points = selectedPoints
       .map((n) => `${n.location.latitude}%2C${n.location.longitude}`)
       .join('~')
-    window.open(`${BASE_MAP_LINK}?rtext=${points}&mode=routes&rtt=auto&z=11`)
+    window.open(
+      `${BASE_MAP_LINK}?rtext=${points}&mode=routes&rtt=auto&z=11`
+    )
   }
 
   getSelectedSubTreeOrWholeTree = (): ExplorerNode[] => {

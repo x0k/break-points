@@ -34,11 +34,11 @@
     {/key}
   </svelte:fragment>
   <svelte:fragment slot="append">
-    ({points.length})
+    <span class="font-thin">({points.length})</span>
     <slot name="append" {node} />
   </svelte:fragment>
   {#if node.children.length > 0}
-    <div class="flex flex-col gap-3 pt-3 ml-4">
+    <div class="flex flex-col gap-4 pt-4 ml-4">
       {#each node.children as n}
         <Node node={n} {open} {selected} {selectNode} {openFolder}>
           <svelte:fragment slot="append" let:node>

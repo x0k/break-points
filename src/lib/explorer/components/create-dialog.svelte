@@ -23,7 +23,7 @@
   export let notificationsService: INotificationsService
 
   let title: string
-  let nodeType = NodeType.Folder
+  let nodeType = NodeType.Point
   let search = writable('')
   let userLocation: GeoLocation = {
     longitude: 50.840812,
@@ -57,7 +57,7 @@
   let suggestions = derived(
     search,
     (addr, set) => {
-      let id: NodeJS.Timeout
+      let id: number
       if (addr.length > 3) {
         id = setTimeout(
           async () =>
@@ -90,10 +90,19 @@
     isLocationUpdatedBySearch = false
     location = loc
   }
+
+  function resetForm() {
+    title = ''
+    search.set('')
+    nodeType = NodeType.Point
+    location = userLocation
+    isLocationUpdatedBySearch = false
+    address = ''
+  }
 </script>
 
 <form
-  on:submit|preventDefault={(e) => {
+  on:submit|preventDefault={() => {
     onSubmit({
       title,
       parentId,
@@ -101,8 +110,7 @@
       type: nodeType,
       address,
     })
-    e.currentTarget.reset()
-    nodeType = NodeType.Folder
+    resetForm()
   }}
 >
   <h3 class="font-bold text-lg">Create entity</h3>
@@ -133,10 +141,8 @@
   </div>
   {#if nodeType === NodeType.Folder}
     <div class="form-control w-full">
-      <label class="label">
-        <span class="label-text">Folder name</span>
-      </label>
       <input
+        placeholder="Folder name"
         type="text"
         class="mt-2 input input-bordered w-full"
         required
@@ -145,10 +151,8 @@
     </div>
   {:else}
     <div class="form-control w-full pb-2 dropdown dropdown-bottom">
-      <label class="label">
-        <span class="label-text">Search</span>
-      </label>
       <input
+        placeholder="Search by address"
         tabindex="0"
         type="text"
         class="mt-2 input input-bordered w-full"
@@ -179,11 +183,9 @@
     <YandexMap {location} {onPositionUpdate} />
     <p class="pt-2">Address: {address}</p>
     <div class="form-control w-full">
-      <label class="label">
-        <span class="label-text">Point name</span>
-      </label>
       <input
         bind:this={pointTitleElement}
+        placeholder="Point name"
         type="text"
         class="mt-2 input input-bordered w-full"
         required

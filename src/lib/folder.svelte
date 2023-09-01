@@ -8,7 +8,7 @@
 <div>
   <div class="flex gap-2" on:click>
     <slot name="prepend" />
-    <Folder />
+    <Folder class="min-w-[1.5rem]" />
     <span>
       {title}
     </span>

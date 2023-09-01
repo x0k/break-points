@@ -83,7 +83,10 @@
 
 <div class="navbar bg-base-100">
   <div class="flex-1">
-    <span class="btn btn-ghost normal-case text-xl">BP</span>
+    <span class="md:hidden btn btn-ghost normal-case text-xl">BP</span>
+    <span class="hidden md:inline-flex btn btn-ghost normal-case text-xl"
+      >Break Points</span
+    >
   </div>
   <div class="flex gap-4 px-2 align-baseline">
     <button class="btn btn-sm" on:click={exportSelectedNodes}>

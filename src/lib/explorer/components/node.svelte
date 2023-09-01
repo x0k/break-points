@@ -1,8 +1,12 @@
 <script lang="ts">
   import type { Readable } from 'svelte/store'
 
-  import type { ExplorerNode, ExplorerNodeId, FolderNode } from '../core'
-  import { isFolder } from '../core'
+  import {
+    type ExplorerNode,
+    type ExplorerNodeId,
+    type FolderNode,
+    isFolder,
+  } from '../core'
 
   import Folder from './folder.svelte'
   import Point from './point.svelte'
