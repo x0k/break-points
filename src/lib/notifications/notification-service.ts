@@ -9,7 +9,7 @@ import type {
 
 export class NotificationService implements INotificationsService {
   private _notifications: Writable<RegisteredNotification[]> = writable([])
-  private _timeouts = new Map<NotificationId, NodeJS.Timeout>()
+  private _timeouts = new Map<NotificationId, number>()
 
   private removeNotification = (id: NotificationId) => {
     const timeoutId = this._timeouts.get(id)
