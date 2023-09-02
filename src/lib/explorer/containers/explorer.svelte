@@ -11,8 +11,16 @@
     type IExplorerService,
     type ExplorerNode,
     type ILocationService,
+    extractNodes,
+    isPoint,
+    type PointNode,
   } from '../core'
-  import { RemoveEntityForm, Node, CreateEntityForm } from '../components'
+  import {
+    RemoveEntityForm,
+    Node,
+    CreateEntityForm,
+    ContinueForm,
+  } from '../components'
 
   export let explorerService: IExplorerService
   export let locationService: ILocationService
@@ -21,6 +29,7 @@
   let nodes = explorerService.nodes
   let open = explorerService.open
   let selected = explorerService.selected
+  $: points = extractNodes<PointNode>({ nodes: $nodes, selector: isPoint })
 
   interface RemoveDialogOptions {
     nodeId: ExplorerNodeId
@@ -63,6 +72,16 @@
     explorerService.createAndInsertNode(data)
     closeCreateDialog()
   }
+
+  let isContinueDialogOpen = false
+
+  function openContinueDialog() {
+    isContinueDialogOpen = true
+  }
+
+  function closeContinueDialog() {
+    isContinueDialogOpen = false
+  }
 </script>
 
 <div class="flex flex-col gap-4 justify-stretch">
@@ -100,9 +119,7 @@
     </button>
   {:else}
     <div class="flex flex-row gap-2">
-      <button
-        class="btn btn-primary flex-1"
-        on:click={explorerService.openMapWithSelectedPoints}
+      <button class="btn btn-primary flex-1" on:click={openContinueDialog}
         >Continue with {$selected.size} points</button
       >
       <button
@@ -114,6 +131,10 @@
     </div>
   {/if}
 </div>
+
+<Dialog open={isContinueDialogOpen} onClose={closeContinueDialog}>
+  <ContinueForm {locationService} {explorerService} {points} />
+</Dialog>
 
 <Dialog open={isCreateDialogOpen} onClose={closeCreateDialog}>
   <CreateEntityForm

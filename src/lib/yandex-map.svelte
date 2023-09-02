@@ -12,6 +12,9 @@
 
   export let onPositionUpdate: (location: GeoLocation) => void
   export let location: GeoLocation
+  let className = 'w-full h-[60vh]'
+  export { className as class }
+
   $: loc = toPair(location)
 
   let mapElement: HTMLDivElement
@@ -65,4 +68,4 @@
   })
 </script>
 
-<div bind:this={mapElement} class="w-full h-[60vh]" />
+<div bind:this={mapElement} class={className} />

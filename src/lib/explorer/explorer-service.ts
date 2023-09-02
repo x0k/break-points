@@ -12,10 +12,15 @@ import {
   removeNode,
   type IExplorerService,
   extractNodeIds,
-  traverse,
   isPoint,
   type PointNode,
+  extractNodes,
 } from './core'
+import {
+  type GeoLocation,
+  type BoundaryLocations,
+  insertBoundaryLocations,
+} from '../geo-location'
 
 export interface ExplorerServiceOptions {
   nodes: Writable<ExplorerNode[]>
@@ -103,17 +108,17 @@ export class ExplorerService implements IExplorerService {
     })
   }
 
-  openMapWithSelectedPoints = (): void => {
+  openMapWithSelectedPoints = (bounds: BoundaryLocations = {}): void => {
     const selected = get(this.options.selected)
     const nodes = get(this.options.nodes)
-    const selectedPoints: PointNode[] = []
-    traverse(nodes, (node: ExplorerNode) => {
-      if (selected.has(node.id) && isPoint(node)) {
-        selectedPoints.push(node)
-      }
+    const locations = extractNodes<GeoLocation>({
+      nodes,
+      selector: (node) => selected.has(node.id) && isPoint(node),
+      transform: (node) => (node as PointNode).location,
     })
-    const points = selectedPoints
-      .map((n) => `${n.location.latitude}%2C${n.location.longitude}`)
+    insertBoundaryLocations(locations, bounds)
+    const points = locations
+      .map((n) => `${n.latitude}%2C${n.longitude}`)
       .join('~')
     window.open(`${BASE_MAP_LINK}?rtext=${points}&mode=routes&rtt=auto&z=11`)
   }

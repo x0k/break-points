@@ -2,7 +2,7 @@
   import { onMount } from 'svelte'
   import { derived, writable } from 'svelte/store'
 
-  import type { GeoLocation } from '@/lib/geo-location'
+  import { DEFAULT_LOCATION, type GeoLocation } from '@/lib/geo-location'
   import {
     NotificationType,
     type INotificationsService,
@@ -25,10 +25,7 @@
   let title: string
   let nodeType = NodeType.Point
   let search = writable('')
-  let userLocation: GeoLocation = {
-    longitude: 50.840812,
-    latitude: 61.660729,
-  }
+  let userLocation: GeoLocation = DEFAULT_LOCATION
   $: location = userLocation
   let isLocationUpdatedBySearch = false
   let address = ''
@@ -57,7 +54,7 @@
   let suggestions = derived(
     search,
     (addr, set) => {
-      let id: number
+      let id: NodeJS.Timeout
       if (addr.length > 3) {
         id = setTimeout(
           async () =>

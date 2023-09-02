@@ -1,6 +1,10 @@
 import type { Readable } from 'svelte/store'
 
-import { isEqual, type GeoLocation } from '@/lib/geo-location'
+import {
+  isEqual,
+  type GeoLocation,
+  type BoundaryLocations,
+} from '@/lib/geo-location'
 
 export enum NodeType {
   Folder = 'folder',
@@ -17,15 +21,14 @@ export type ExplorerNodeId = string
 export interface AbstractNode<T extends NodeType> {
   id: ExplorerNodeId
   type: T
+  title: string
 }
 
 export interface FolderNode extends AbstractNode<NodeType.Folder> {
-  title: string
   children: ExplorerNode[]
 }
 
 export interface PointNode extends AbstractNode<NodeType.Point> {
-  title: string
   location: GeoLocation
   address: string
 }
@@ -57,7 +60,7 @@ export interface IExplorerService {
   createAndInsertNode(node: CreateNode): void
   removeNode(node: ExplorerNode): void
   clearSelection(): void
-  openMapWithSelectedPoints(): void
+  openMapWithSelectedPoints(options?: BoundaryLocations): void
 }
 
 export interface PlaceLocation {
@@ -87,6 +90,10 @@ export function getNodeId(node: ExplorerNode): ExplorerNodeId {
   return node.id
 }
 
+export function getNodeTitle(node: ExplorerNode): string {
+  return node.title
+}
+
 export function traverse(
   nodes: ExplorerNode[],
   callback: (node: ExplorerNode) => void
@@ -99,22 +106,46 @@ export function traverse(
   }
 }
 
+export interface ExtractNodesOptions<R> {
+  nodes: ExplorerNode[]
+  selector?: (node: ExplorerNode) => boolean
+  transform?: (node: ExplorerNode) => R
+}
+
+export function extractNodes<R>({
+  nodes,
+  selector,
+  transform,
+}: ExtractNodesOptions<R>): R[] {
+  const results: R[] = []
+  let visit: (node: ExplorerNode) => void = transform
+    ? (node) => results.push(transform(node))
+    : (node) => results.push(node as R)
+  if (selector) {
+    const v = visit
+    visit = (node) => {
+      if (selector(node)) {
+        v(node)
+      }
+    }
+  }
+  traverse(nodes, visit)
+  return results
+}
+
 export function extractNodeIds(
   node: ExplorerNode,
   selector?: (node: ExplorerNode) => boolean
 ): ExplorerNodeId[] {
-  const ids: ExplorerNodeId[] = !selector || selector(node) ? [node.id] : []
-  if (isFolder(node)) {
-    traverse(
-      node.children,
-      selector
-        ? (node) => {
-            if (selector(node)) {
-              ids.push(node.id)
-            }
-          }
-        : (node) => ids.push(node.id)
-    )
+  const ids = isFolder(node)
+    ? extractNodes({
+        nodes: node.children,
+        transform: getNodeId,
+        selector,
+      })
+    : []
+  if (!selector || selector(node)) {
+    ids.unshift(node.id)
   }
   return ids
 }
