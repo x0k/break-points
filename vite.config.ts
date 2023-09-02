@@ -13,6 +13,8 @@ export default defineConfig({
     VitePWA({
       manifest: {
         name: 'Break Points',
+        short_name: 'BPoints',
+        background_color: '#1d232a',
         description: 'App for storing your route points',
         icons: [
           { src: '/favicon.ico', type: 'image/x-icon', sizes: '16x16 32x32' },
