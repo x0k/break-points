@@ -1,7 +1,7 @@
 import type { GeoLocation } from '@/lib/geo-location'
 import type { ResponseFeature, YandexGeocodeAPI } from '@/lib/yandex-geocode-api'
 
-import type { ILocationService, PlaceLocation } from './core'
+import type { ILocationService, PlaceLocation } from '../core'
 
 function decodeGeolocationError(error: GeolocationPositionError): string {
   switch (error.code) {

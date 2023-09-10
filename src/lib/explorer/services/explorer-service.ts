@@ -1,4 +1,11 @@
 import { get, type Writable } from 'svelte/store'
+
+import {
+  type GeoLocation,
+  insertBoundaryLocations,
+  type BoundaryLocations,
+} from '@/lib/geo-location'
+
 import {
   extractPointIds,
   type ExplorerNode,
@@ -15,22 +22,22 @@ import {
   isPoint,
   type PointNode,
   extractNodes,
-} from './core'
-import {
-  type GeoLocation,
-  type BoundaryLocations,
-  insertBoundaryLocations,
-} from '../geo-location'
+  type IMapUrlGeneratorFactory,
+  MapType,
+} from '../core'
 
 export interface ExplorerServiceOptions {
   nodes: Writable<ExplorerNode[]>
   open: Writable<Set<ExplorerNodeId>>
   selected: Writable<Set<ExplorerNodeId>>
+  mapType: Writable<MapType>
 }
 
-const BASE_MAP_LINK = 'https://yandex.com/maps/'
 export class ExplorerService implements IExplorerService {
-  constructor(private options: ExplorerServiceOptions) {}
+  constructor(
+    private options: ExplorerServiceOptions,
+    private readonly mapUrlGeneratorFactory: IMapUrlGeneratorFactory
+  ) {}
 
   get nodes() {
     return this.options.nodes
@@ -42,6 +49,14 @@ export class ExplorerService implements IExplorerService {
 
   get selected() {
     return this.options.selected
+  }
+
+  get mapType() {
+    return this.options.mapType
+  }
+
+  setMapType = (mapType: MapType): void => {
+    this.options.mapType.set(mapType)
   }
 
   openFolder = (folder: FolderNode) => {
@@ -108,7 +123,10 @@ export class ExplorerService implements IExplorerService {
     })
   }
 
-  openMapWithSelectedPoints = (bounds: BoundaryLocations = {}): void => {
+  openMapWithSelectedPoints = (
+    mapType: MapType,
+    bounds: BoundaryLocations = {}
+  ): void => {
     const selected = get(this.options.selected)
     const nodes = get(this.options.nodes)
     const locations = extractNodes<GeoLocation>({
@@ -117,9 +135,8 @@ export class ExplorerService implements IExplorerService {
       transform: (node) => (node as PointNode).location,
     })
     insertBoundaryLocations(locations, bounds)
-    const points = locations
-      .map((n) => `${n.latitude}%2C${n.longitude}`)
-      .join('~')
-    window.open(`${BASE_MAP_LINK}?rtext=${points}&mode=routes&rtt=auto&z=11`)
+    const generator = this.mapUrlGeneratorFactory.create(mapType)
+    const url = generator.generate(locations)
+    window.open(url)
   }
 }

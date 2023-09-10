@@ -51,16 +51,34 @@ export type CreateNode = CreateFolderNode | CreatePointNode
 
 export type ExplorerNode = FolderNode | PointNode
 
+export enum MapType {
+  Yandex = 'yandex',
+  Google = 'google',
+  DoubleGis = '2gis',
+}
+
+export const MAP_TYPES = Object.values(MapType)
+
+export interface IMapUrlGenerator {
+  generate(locations: GeoLocation[]): string
+}
+
+export interface IMapUrlGeneratorFactory {
+  create(type: MapType): IMapUrlGenerator
+}
+
 export interface IExplorerService {
   nodes: Readable<ExplorerNode[]>
   open: Readable<Set<ExplorerNodeId>>
   selected: Readable<Set<ExplorerNodeId>>
+  mapType: Readable<MapType>
+  setMapType (mapType: MapType): void
   openFolder(folder: FolderNode): void
   selectNode(node: ExplorerNode): void
   createAndInsertNode(node: CreateNode): void
   removeNode(node: ExplorerNode): void
   clearSelection(): void
-  openMapWithSelectedPoints(options?: BoundaryLocations): void
+  openMapWithSelectedPoints(mapType: MapType, options?: BoundaryLocations): void
 }
 
 export interface PlaceLocation {
@@ -92,6 +110,10 @@ export function getNodeId(node: ExplorerNode): ExplorerNodeId {
 
 export function getNodeTitle(node: ExplorerNode): string {
   return node.title
+}
+
+export function isMapType(value: unknown): value is MapType {
+  return MAP_TYPES.includes(value as MapType)
 }
 
 export function traverse(

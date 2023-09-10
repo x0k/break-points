@@ -1,19 +1,23 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
-  import {
-    DEFAULT_LOCATION,
-    type BoundaryLocations,
-    type GeoLocation,
-  } from '@/lib/geo-location'
+  import { DEFAULT_LOCATION, type GeoLocation } from '@/lib/geo-location'
 
-  import type { IExplorerService, ILocationService, PointNode } from '../core'
+  import {
+    MapType,
+    type IExplorerService,
+    type ILocationService,
+    type PointNode,
+    isMapType,
+  } from '../core'
 
   import DynamicPoint, { PointType } from './dynamic-point.svelte'
 
   export let points: PointNode[]
   export let locationService: ILocationService
   export let explorerService: IExplorerService
+  export let mapType: MapType
+  export let onMapTypeChange: (newMapType: MapType) => void
 
   let addStartPoint = true
   let startLocation = DEFAULT_LOCATION
@@ -38,7 +42,7 @@
   })
 
   function onSubmit() {
-    explorerService.openMapWithSelectedPoints({
+    explorerService.openMapWithSelectedPoints(mapType, {
       start: addStartPoint ? startLocation : undefined,
       end: addEndPoint ? endLocation : undefined,
     })
@@ -81,6 +85,24 @@
       />
     {/if}
   </div>
-
-  <button type="submit" class="btn btn-primary w-full mt-4">Open map</button>
+  <div class="join mt-4 w-full">
+    <select
+      class="select select-primary join-item"
+      placeholder="Map provider"
+      value={mapType}
+      on:change={(e) => {
+        const { value } = e.currentTarget
+        if (isMapType(value)) {
+          onMapTypeChange(value)
+        }
+      }}
+    >
+      <option value={MapType.Yandex}>Yandex</option>
+      <option value={MapType.DoubleGis}>2GIS</option>
+      <option value={MapType.Google}>Google</option>
+    </select>
+    <button type="submit" class="join-item btn btn-primary grow"
+      >Open map</button
+    >
+  </div>
 </form>

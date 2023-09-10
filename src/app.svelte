@@ -9,8 +9,9 @@
     LocationService,
     extractSelectedSubTree,
     mergeTrees,
+    MapURLGeneratorFactory,
   } from '@/lib/explorer'
-  import { nodes, open, selected } from '@/lib/state'
+  import { nodes, open, selected, mapType } from '@/lib/state'
   import { YandexGeocodeAPI } from '@/lib/yandex-geocode-api'
   import {
     NotificationService,
@@ -25,11 +26,15 @@
     makeJSONBlob,
   } from '@/lib/file'
 
-  const explorerService = new ExplorerService({
-    nodes,
-    open,
-    selected,
-  })
+  const explorerService = new ExplorerService(
+    {
+      nodes,
+      open,
+      selected,
+      mapType,
+    },
+    new MapURLGeneratorFactory()
+  )
   const locationService = new LocationService(
     new YandexGeocodeAPI('90533b74-d6fd-4a43-be42-eb5cabf34272')
   )

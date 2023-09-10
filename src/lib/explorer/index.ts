@@ -1,5 +1,4 @@
 export * from './core'
 export * from './components'
 export * from './containers'
-export * from './explorer-service'
-export * from './location-service'
+export * from './services'

@@ -14,6 +14,7 @@
     extractNodes,
     isPoint,
     type PointNode,
+    MapType,
   } from '../core'
   import {
     RemoveEntityForm,
@@ -30,6 +31,7 @@
   let open = explorerService.open
   let selected = explorerService.selected
   $: points = extractNodes<PointNode>({ nodes: $nodes, selector: isPoint })
+  let mapType = explorerService.mapType
 
   interface RemoveDialogOptions {
     nodeId: ExplorerNodeId
@@ -133,7 +135,13 @@
 </div>
 
 <Dialog open={isContinueDialogOpen} onClose={closeContinueDialog}>
-  <ContinueForm {locationService} {explorerService} {points} />
+  <ContinueForm
+    {locationService}
+    {explorerService}
+    {points}
+    mapType={$mapType}
+    onMapTypeChange={explorerService.setMapType}
+  />
 </Dialog>
 
 <Dialog open={isCreateDialogOpen} onClose={closeCreateDialog}>
