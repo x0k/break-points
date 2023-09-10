@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { YMap } from '@yandex/ymaps3-types'
+  import type { YMap, YMapListener } from '@yandex/ymaps3-types'
   import { onMount } from 'svelte'
 
   import {
@@ -23,18 +23,11 @@
 
   let marker: YMapDefaultMarker
 
+  let listener: YMapListener
+
   $: if (marker) {
     marker.update({
       coordinates: loc,
-    })
-    setTimeout(() => {
-      if (!isEqual(makeGeoLocation(map.center[0], map.center[1]), location)) {
-        map.update({
-          location: {
-            center: loc,
-          },
-        })
-      }
     })
   }
 
@@ -65,6 +58,18 @@
     })
 
     map.addChild(marker)
+
+    listener = new ymaps3.YMapListener({
+      onClick: (obj, event) => {
+        if (obj?.type !== 'marker') {
+          onPositionUpdate(
+            makeGeoLocation(event.coordinates[0], event.coordinates[1])
+          )
+        }
+      },
+    })
+
+    map.addChild(listener)
   })
 </script>
 
