@@ -16,7 +16,7 @@
 </script>
 
 <div class="toast">
-  {#each $notifications as n}
+  {#each $notifications as n (n.id)}
     <div
       class="alert data-[status=error]:alert-error data-[status=info]:alert-info data-[status=success]:alert-success data-[status=warning]:alert-warning"
       data-status={n.data.type}

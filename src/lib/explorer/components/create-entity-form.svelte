@@ -162,7 +162,7 @@
           tabindex="0"
           class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box max-w-[28rem] w-full text-ellipsis"
         >
-          {#each $suggestions as s}
+          {#each $suggestions as s (s.address)}
             <li>
               <a
                 on:click={() => {

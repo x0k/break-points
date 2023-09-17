@@ -12,7 +12,7 @@
   import ComboBox from '@/lib/combo-box.svelte'
   import YandexMap from '@/lib/yandex-map.svelte'
 
-  import { getNodeTitle, type PointNode } from '../core'
+  import { getNodeId, getNodeTitle, type PointNode } from '../core'
 
   export let pointType: PointType
   export let points: PointNode[]
@@ -32,7 +32,7 @@
     onLocationChange(selected.location)
   }
 
-  function getNewLocation (pt: PointType): GeoLocation {
+  function getNewLocation(pt: PointType): GeoLocation {
     switch (pt) {
       case PointType.Location:
         return location
@@ -90,6 +90,7 @@
   <ComboBox
     items={points}
     {filter}
+    getItemId={getNodeId}
     getItemLabel={getNodeTitle}
     {selected}
     {onSelect}

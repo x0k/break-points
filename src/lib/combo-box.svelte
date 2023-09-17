@@ -5,6 +5,7 @@
   export let items: T[]
   export let selected: T
   export let getItemLabel: (item: T) => string
+  export let getItemId: (item: T) => string | number
   export let filter: (items: T[], search: string) => T[]
   export let onSelect: (item: T) => void
 
@@ -46,7 +47,7 @@
       use:combobox.items
       class="absolute shadow menu z-[1] bg-base-100 rounded-box w-full max-w-[29rem]"
     >
-      {#each filtered as value}
+      {#each filtered as value (getItemId(value))}
         {@const active = $combobox.active === value}
         {@const selected = $combobox.selected === value}
         <li use:combobox.item={{ value }}>

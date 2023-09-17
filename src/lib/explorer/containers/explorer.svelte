@@ -87,7 +87,7 @@
 </script>
 
 <div class="flex flex-col gap-4 justify-stretch">
-  {#each $nodes as n}
+  {#each $nodes as n (n.id)}
     <Node
       node={n}
       {open}
