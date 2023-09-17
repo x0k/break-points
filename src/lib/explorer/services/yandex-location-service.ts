@@ -28,7 +28,7 @@ function featureToPlace(feature: ResponseFeature): PlaceLocation {
   }
 }
 
-export class LocationService implements ILocationService {
+export class YandexLocationService implements ILocationService {
   constructor(private readonly geocodeService: YandexGeocodeAPI) {}
 
   get isUserLocationAvailable(): boolean {

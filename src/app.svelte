@@ -6,7 +6,7 @@
   import {
     ExplorerContainer,
     ExplorerService,
-    LocationService,
+    YandexLocationService,
     extractSelectedSubTree,
     mergeTrees,
     MapURLGeneratorFactory,
@@ -35,7 +35,7 @@
     },
     new MapURLGeneratorFactory()
   )
-  const locationService = new LocationService(
+  const locationService = new YandexLocationService(
     new YandexGeocodeAPI('90533b74-d6fd-4a43-be42-eb5cabf34272')
   )
   const notificationsService = new NotificationService()
