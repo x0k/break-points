@@ -2,9 +2,19 @@
   export let open = false
 
   export let onClose: () => void
+
+  let dialogElement: HTMLDialogElement
+
+  $: if (dialogElement) {
+    if (open) {
+      dialogElement.showModal()
+    } else {
+      dialogElement.close()
+    }
+  }
 </script>
 
-<dialog {open} class="modal">
+<dialog bind:this={dialogElement} class="modal">
   <form method="dialog" class="modal-box" on:submit|preventDefault={onClose}>
     <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
       ✕
