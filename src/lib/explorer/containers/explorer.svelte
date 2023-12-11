@@ -109,7 +109,7 @@
             ><Plus size={16} /></button
           >
         {:else}
-          <span class="truncate font-thin grow-1" dir="rtl">
+          <span class="truncate font-thin grow-1 ml-auto" dir="rtl">
             {node.address}
           </span>
         {/if}

@@ -4,7 +4,7 @@
   // on:click used to bubble up event to parent
 </script>
 
-<button class="flex gap-2 align-baseline" on:click>
+<button class="flex gap-2 align-baseline w-full" on:click>
   <slot name="prepend" />
   <MapPin class="min-w-[1.5rem]" />
   <span class="truncate shrink-0 max-w-[40%]">{title}</span>
