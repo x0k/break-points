@@ -6,7 +6,7 @@
 </script>
 
 <div>
-  <div class="flex gap-2" on:click>
+  <button class="flex gap-2 w-full" on:click>
     <slot name="prepend" />
     <Folder class="min-w-[1.5rem]" />
     <span>
@@ -14,7 +14,7 @@
     </span>
     <div class="flex-1" />
     <slot name="append" />
-  </div>
+  </button>
   <div class:hidden={!open}>
     <slot />
   </div>
