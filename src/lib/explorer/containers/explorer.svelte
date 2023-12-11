@@ -14,7 +14,6 @@
     extractNodes,
     isPoint,
     type PointNode,
-    MapType,
   } from '../core'
   import {
     RemoveEntityForm,
