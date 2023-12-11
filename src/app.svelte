@@ -25,6 +25,7 @@
     blobSave,
     makeJSONBlob,
   } from '@/lib/file'
+  import { Button } from './lib/components/button'
 
   const explorerService = new ExplorerService(
     {
@@ -95,28 +96,32 @@
   }
 </script>
 
-<div class="navbar bg-base-100 max-w-3xl mx-auto">
-  <div class="flex-1">
-    <a
+<div
+  class="flex items-center w-full p-2 min-h-[4rem] bg-inherit max-w-3xl mx-auto"
+>
+  <div class="grow">
+    <Button
+      variant="ghost"
       target="_blank"
       href="https://github.com/x0k/break-points"
-      class="md:hidden btn btn-ghost normal-case text-xl">BP</a
+      class="md:hidden normal-case text-xl">BP</Button
     >
-    <a
+    <Button
+      variant="ghost"
       target="_blank"
       href="https://github.com/x0k/break-points"
-      class="hidden md:inline-flex btn btn-ghost normal-case text-xl"
+      class="hidden md:inline-flex normal-case text-xl"
     >
-      Break Points</a
+      Break Points</Button
     >
   </div>
   <div class="flex gap-4 px-2 align-baseline">
-    <button class="btn btn-sm sm:btn-md" on:click={exportSelectedNodes}>
-      <Upload /> Export
-    </button>
-    <button class="btn btn-sm sm:btn-md" on:click={importPoints}>
-      <Download /> Import
-    </button>
+    <Button on:click={exportSelectedNodes}>
+      <Upload class="mr-2" /> Export
+    </Button>
+    <Button on:click={importPoints}>
+      <Download class="mr-2" /> Import
+    </Button>
   </div>
 </div>
 
