@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Download, Upload } from 'lucide-svelte'
+  import { Download, Github, Upload } from 'lucide-svelte'
   import { parse, stringify } from 'devalue'
   import { get } from 'svelte/store'
 
@@ -95,7 +95,7 @@
   }
 </script>
 
-<div class="navbar bg-base-100">
+<div class="navbar bg-base-100 max-w-3xl mx-auto">
   <div class="flex-1">
     <span class="md:hidden btn btn-ghost normal-case text-xl">BP</span>
     <span class="hidden md:inline-flex btn btn-ghost normal-case text-xl"
@@ -103,12 +103,15 @@
     >
   </div>
   <div class="flex gap-4 px-2 align-baseline">
-    <button class="btn btn-sm" on:click={exportSelectedNodes}>
+    <button class="btn btn-sm sm:btn-md" on:click={exportSelectedNodes}>
       <Upload /> Export
     </button>
-    <button class="btn btn-sm" on:click={importPoints}>
+    <button class="btn btn-sm sm:btn-md" on:click={importPoints}>
       <Download /> Import
     </button>
+    <a href="https://github.com/x0k/break-points" target="_blank" class="btn btn-sm sm:btn-md btn-circle">
+      <Github />
+    </a>
   </div>
 </div>
 
