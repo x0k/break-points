@@ -35,8 +35,10 @@
     "vitest": "^1.0.4"
   },
   "dependencies": {
+    "bits-ui": "^0.11.7",
     "browser-fs-access": "^0.35.0",
     "clsx": "^2.0.0",
+    "cmdk-sv": "^0.0.12",
     "devalue": "^4.3.2",
     "lucide-svelte": "^0.294.0",
     "match-sorter": "^6.3.1",
