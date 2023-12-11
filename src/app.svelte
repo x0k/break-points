@@ -25,7 +25,7 @@
     blobSave,
     makeJSONBlob,
   } from '@/lib/file'
-  import { Button } from './lib/components/button'
+  import { Button } from '@/lib/components/button'
 
   const explorerService = new ExplorerService(
     {
