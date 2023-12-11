@@ -24,6 +24,7 @@ import {
   extractNodes,
   type IMapUrlGeneratorFactory,
   MapType,
+  updateNode,
 } from '../core'
 
 export interface ExplorerServiceOptions {
@@ -98,6 +99,13 @@ export class ExplorerService implements IExplorerService {
         return s
       })
     }
+  }
+
+  updateNode (node: ExplorerNode): void {
+    this.options.nodes.update((ns) => {
+      updateNode(ns, node)
+      return ns
+    })
   }
 
   removeNode = (node: ExplorerNode) => {

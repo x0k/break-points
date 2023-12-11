@@ -1,17 +1,13 @@
 <script lang="ts">
-  import type { YMap, YMapListener } from '@yandex/ymaps3-types'
   import { onMount } from 'svelte'
-
-  import {
-    isEqual,
-    type GeoLocation,
-    makeGeoLocation,
-    toPair,
-  } from './geo-location'
+  import type { YMap, YMapListener } from '@yandex/ymaps3-types'
   import type { YMapDefaultMarker } from '@yandex/ymaps3-types/packages/markers'
+
+  import { type GeoLocation, makeGeoLocation, toPair } from './geo-location'
 
   export let onPositionUpdate: (location: GeoLocation) => void
   export let location: GeoLocation
+  export let zoom = 11
   let className = 'w-full h-[60vh]'
   export { className as class }
 
@@ -37,7 +33,7 @@
     map = new ymaps3.YMap(mapElement, {
       location: {
         center: loc,
-        zoom: 11,
+        zoom,
       },
     })
 

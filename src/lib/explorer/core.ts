@@ -72,10 +72,11 @@ export interface IExplorerService {
   open: Readable<Set<ExplorerNodeId>>
   selected: Readable<Set<ExplorerNodeId>>
   mapType: Readable<MapType>
-  setMapType (mapType: MapType): void
+  setMapType(mapType: MapType): void
   openFolder(folder: FolderNode): void
   selectNode(node: ExplorerNode): void
   createAndInsertNode(node: CreateNode): void
+  updateNode(node: ExplorerNode): void
   removeNode(node: ExplorerNode): void
   clearSelection(): void
   openMapWithSelectedPoints(mapType: MapType, options?: BoundaryLocations): void
@@ -246,6 +247,21 @@ export function insertNode(
   } else {
     insertNodeIntoSortedArray(nodes, node)
   }
+}
+
+export function updateNode(nodes: ExplorerNode[], node: ExplorerNode) {
+  for (let i = 0; i < nodes.length; i++) {
+    const n = nodes[i]
+    if (n.id === node.id) {
+      nodes[i] = node
+      return true
+    } else if (isFolder(n)) {
+      if (updateNode(n.children, node)) {
+        return true
+      }
+    }
+  }
+  return false
 }
 
 export function removeNode(

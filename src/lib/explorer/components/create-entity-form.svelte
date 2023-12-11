@@ -149,6 +149,16 @@
       />
     </div>
   {:else}
+    <div class="form-control w-full">
+      <input
+        bind:this={pointTitleElement}
+        placeholder="Point name"
+        type="text"
+        class="mt-2 input input-bordered w-full"
+        required
+        bind:value={title}
+      />
+    </div>
     <div class="form-control w-full pb-2 dropdown dropdown-bottom">
       <input
         placeholder="Search by address"
@@ -181,16 +191,6 @@
     </div>
     <YandexMap {location} {onPositionUpdate} />
     <p class="pt-2">Address: {address}</p>
-    <div class="form-control w-full">
-      <input
-        bind:this={pointTitleElement}
-        placeholder="Point name"
-        type="text"
-        class="mt-2 input input-bordered w-full"
-        required
-        bind:value={title}
-      />
-    </div>
   {/if}
   <div class="modal-action">
     <button type="submit" class="btn btn-primary">Create</button>

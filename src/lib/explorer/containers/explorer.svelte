@@ -21,14 +21,13 @@
     CreateEntityForm,
     ContinueForm,
   } from '../components'
+  import EditEntityForm from '../components/edit-entity-form.svelte'
 
   export let explorerService: IExplorerService
   export let locationService: ILocationService
   export let notificationsService: INotificationsService
 
-  let nodes = explorerService.nodes
-  let open = explorerService.open
-  let selected = explorerService.selected
+  let { nodes, open, selected } = explorerService
   $: points = extractNodes<PointNode>({ nodes: $nodes, selector: isPoint })
   let mapType = explorerService.mapType
 
@@ -38,16 +37,13 @@
 
   let isRemoveDialogOpen = false
   let removeDialogOptions: RemoveDialogOptions = { nodeId: 'INVALID' }
-
   function openRemoveDialog(nodeId: ExplorerNodeId) {
     removeDialogOptions = { nodeId }
     isRemoveDialogOpen = true
   }
-
   function closeRemoveDialog() {
     isRemoveDialogOpen = false
   }
-
   function onRemoveDialogSubmit(node: ExplorerNode) {
     explorerService.removeNode(node)
     closeRemoveDialog()
@@ -56,32 +52,43 @@
   interface CreateDialogOptions {
     parentId?: ExplorerNodeId
   }
-
   let isCreateDialogOpen = false
   let createDialogOptions: CreateDialogOptions = {}
-
   function openCreateDialog(parentId?: ExplorerNodeId) {
     createDialogOptions = { parentId }
     isCreateDialogOpen = true
   }
-
   function closeCreateDialog() {
     isCreateDialogOpen = false
   }
-
   function onCreateDialogSubmit(data: CreateNode) {
     explorerService.createAndInsertNode(data)
     closeCreateDialog()
   }
 
   let isContinueDialogOpen = false
-
   function openContinueDialog() {
     isContinueDialogOpen = true
   }
-
   function closeContinueDialog() {
     isContinueDialogOpen = false
+  }
+
+  let isEditDialogOpen = false
+  let editableNodeId: ExplorerNodeId
+  function openEditDialog() {
+    if ($selected.size === 0) {
+      return
+    }
+    editableNodeId = $selected.values().next().value
+    isEditDialogOpen = true
+  }
+  function closeEditDialog() {
+    isEditDialogOpen = false
+  }
+  function onEditDialogSubmit(node: ExplorerNode) {
+    explorerService.updateNode(node)
+    closeEditDialog()
   }
 </script>
 
@@ -120,9 +127,15 @@
     </button>
   {:else}
     <div class="flex flex-row gap-2">
-      <button class="btn btn-primary flex-1" on:click={openContinueDialog}
-        >Continue with {$selected.size} points</button
-      >
+      {#if $selected.size === 1}
+        <button class="btn btn-primary grow" on:click={openEditDialog}>
+          Edit selected point
+        </button>
+      {:else}
+        <button class="btn btn-primary grow" on:click={openContinueDialog}
+          >Continue with {$selected.size} points</button
+        >
+      {/if}
       <button
         class="btn btn-secondary"
         on:click={explorerService.clearSelection}
@@ -158,4 +171,16 @@
     nodeId={removeDialogOptions.nodeId}
     onSubmit={onRemoveDialogSubmit}
   />
+</Dialog>
+
+<Dialog open={isEditDialogOpen} onClose={closeEditDialog}>
+  {#key editableNodeId}
+    <EditEntityForm
+      nodeId={editableNodeId}
+      {locationService}
+      {notificationsService}
+      {nodes}
+      onSubmit={onEditDialogSubmit}
+    />
+  {/key}
 </Dialog>
