@@ -36,10 +36,13 @@
   },
   "dependencies": {
     "browser-fs-access": "^0.35.0",
+    "clsx": "^2.0.0",
     "devalue": "^4.3.2",
     "lucide-svelte": "^0.294.0",
     "match-sorter": "^6.3.1",
     "svelte-headlessui": "^0.0.32",
-    "svelte-transition": "^0.0.10"
+    "svelte-transition": "^0.0.10",
+    "tailwind-merge": "^2.1.0",
+    "tailwind-variants": "^0.1.18"
   }
 }
