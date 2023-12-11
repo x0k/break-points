@@ -2,7 +2,7 @@
   import { Plus, Trash, X } from 'lucide-svelte'
 
   import type { INotificationsService } from '@/lib/notifications'
-  import Dialog from '@/lib/dialog.svelte'
+  import * as Dialog from '@/lib/components/dialog'
 
   import {
     isFolder,
@@ -20,8 +20,8 @@
     Node,
     CreateEntityForm,
     ContinueForm,
+    EditEntityForm,
   } from '../components'
-  import EditEntityForm from '../components/edit-entity-form.svelte'
 
   export let explorerService: IExplorerService
   export let locationService: ILocationService
@@ -146,41 +146,49 @@
   {/if}
 </div>
 
-<Dialog open={isContinueDialogOpen} onClose={closeContinueDialog}>
-  <ContinueForm
-    {locationService}
-    {explorerService}
-    {points}
-    mapType={$mapType}
-    onMapTypeChange={explorerService.setMapType}
-  />
-</Dialog>
+<Dialog.Root open={isContinueDialogOpen} onOpenChange={closeContinueDialog}>
+  <Dialog.Content>
+    <ContinueForm
+      {locationService}
+      {explorerService}
+      {points}
+      mapType={$mapType}
+      onMapTypeChange={explorerService.setMapType}
+    />
+  </Dialog.Content>
+</Dialog.Root>
 
-<Dialog open={isCreateDialogOpen} onClose={closeCreateDialog}>
-  <CreateEntityForm
-    {locationService}
-    {notificationsService}
-    parentId={createDialogOptions.parentId}
-    onSubmit={onCreateDialogSubmit}
-  />
-</Dialog>
-
-<Dialog open={isRemoveDialogOpen} onClose={closeRemoveDialog}>
-  <RemoveEntityForm
-    {nodes}
-    nodeId={removeDialogOptions.nodeId}
-    onSubmit={onRemoveDialogSubmit}
-  />
-</Dialog>
-
-<Dialog open={isEditDialogOpen} onClose={closeEditDialog}>
-  {#key editableNodeId}
-    <EditEntityForm
-      nodeId={editableNodeId}
+<Dialog.Root open={isCreateDialogOpen} onOpenChange={closeCreateDialog}>
+  <Dialog.Content>
+    <CreateEntityForm
       {locationService}
       {notificationsService}
-      {nodes}
-      onSubmit={onEditDialogSubmit}
+      parentId={createDialogOptions.parentId}
+      onSubmit={onCreateDialogSubmit}
     />
-  {/key}
-</Dialog>
+  </Dialog.Content>
+</Dialog.Root>
+
+<Dialog.Root open={isRemoveDialogOpen} onOpenChange={closeRemoveDialog}>
+  <Dialog.Content>
+    <RemoveEntityForm
+      {nodes}
+      nodeId={removeDialogOptions.nodeId}
+      onSubmit={onRemoveDialogSubmit}
+    />
+  </Dialog.Content>
+</Dialog.Root>
+
+<Dialog.Root open={isEditDialogOpen} onOpenChange={closeEditDialog}>
+  <Dialog.Content>
+    {#key editableNodeId}
+      <EditEntityForm
+        nodeId={editableNodeId}
+        {locationService}
+        {notificationsService}
+        {nodes}
+        onSubmit={onEditDialogSubmit}
+      />
+    {/key}
+  </Dialog.Content>
+</Dialog.Root>
