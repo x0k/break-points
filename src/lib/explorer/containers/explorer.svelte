@@ -24,6 +24,7 @@
     EditEntityForm,
     type ContinueFormData,
   } from '../components'
+  import { pluralize } from '@/lib/plural'
 
   export let explorerService: IExplorerService
   export let locationService: ILocationService
@@ -145,7 +146,8 @@
   {:else}
     <div class="flex flex-row gap-2">
       <Button class="grow" on:click={openContinueDialog}
-        >Continue with {$selected.size} points</Button
+        >Continue with {$selected.size}
+        {pluralize($selected.size, 'point', 'points')}</Button
       >
       <Button variant="destructive" on:click={explorerService.clearSelection}>
         <X />
