@@ -9,8 +9,8 @@
 
   export let items: T[] = []
   export let selected: T | null
-  export let defaultLabel = 'Select an item'
-  export let searchPlaceholder = 'Search items'
+  export let defaultLabel = 'Select item...'
+  export let searchPlaceholder = 'Search item...'
   export let getItemLabel: (item: T) => string
   export let getItemId: (item: T) => string
   export let filter: (items: T[], search: string) => T[] | Promise<T[]>
