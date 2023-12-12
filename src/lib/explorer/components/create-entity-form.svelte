@@ -91,7 +91,7 @@
 
   function onPositionUpdate(location: GeoLocation) {
     isAddressUpdateNeeded = true
-    selectedPlace = { location, address: '' }
+    selectedPlace = { location, address: 'Loading...' }
   }
 
   function resetForm() {
