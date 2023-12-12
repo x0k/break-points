@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Plus, Trash, X } from 'lucide-svelte'
+  import { Pencil, Plus, Trash, X } from 'lucide-svelte'
 
   import type { INotificationsService } from '@/lib/notifications'
   import * as Dialog from '@/lib/components/dialog'
@@ -81,11 +81,8 @@
 
   let isEditDialogOpen = false
   let editableNodeId: ExplorerNodeId
-  function openEditDialog() {
-    if ($selected.size === 0) {
-      return
-    }
-    editableNodeId = $selected.values().next().value
+  function openEditDialog(nodeId: ExplorerNodeId) {
+    editableNodeId = nodeId
     isEditDialogOpen = true
   }
   function closeEditDialog() {
@@ -120,9 +117,23 @@
           </span>
         {/if}
         <Button
+          size="xs"
+          on:click={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+            openEditDialog(node.id)
+          }}
+        >
+          <Pencil />
+        </Button>
+        <Button
           variant="destructive"
           size="xs"
-          on:click={() => openRemoveDialog(node.id)}><Trash size={16} /></Button
+          on:click={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+            openRemoveDialog(node.id)
+          }}><Trash size={16} /></Button
         >
       </svelte:fragment>
     </Node>
@@ -133,15 +144,9 @@
     </Button>
   {:else}
     <div class="flex flex-row gap-2">
-      {#if $selected.size === 1}
-        <Button class="grow" on:click={openEditDialog}>
-          Edit selected point
-        </Button>
-      {:else}
-        <Button class="grow" on:click={openContinueDialog}
-          >Continue with {$selected.size} points</Button
-        >
-      {/if}
+      <Button class="grow" on:click={openContinueDialog}
+        >Continue with {$selected.size} points</Button
+      >
       <Button variant="destructive" on:click={explorerService.clearSelection}>
         <X />
       </Button>

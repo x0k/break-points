@@ -11,7 +11,7 @@
   let title = node.title
 </script>
 
-<form on:submit|preventDefault={() => onSubmit({ ...node, title })}>
+<form class="flex flex-col gap-4" on:submit|preventDefault={() => onSubmit({ ...node, title })}>
   <h3 class="font-bold text-lg">Edit folder</h3>
 
   <div class="flex flex-col w-full gap-2">
@@ -23,5 +23,5 @@
       bind:value={title}
     />
   </div>
-  <Button type="submit" class="w-full">Save</Button>
+  <Button variant="success" type="submit" class="w-full">Save</Button>
 </form>
