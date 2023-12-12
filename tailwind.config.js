@@ -1,10 +1,14 @@
 import { fontFamily } from 'tailwindcss/defaultTheme'
+import colors from 'tailwindcss/colors'
 /** @type {import('tailwindcss').Config} */
 const config = {
   darkMode: ['class'],
   content: ['./src/**/*.{html,js,svelte,ts}'],
   safelist: ['dark'],
   theme: {
+    colors: {
+      success: colors.green['500']
+    },
     container: {
       center: true,
       padding: '2rem',

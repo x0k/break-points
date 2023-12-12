@@ -30,7 +30,9 @@
     <Alert.Root
       variant={n.data.type === NotificationType.Error
         ? 'destructive'
-        : 'default'}
+        : n.data.type === NotificationType.Success
+          ? 'success'
+          : 'default'}
     >
       <svelte:component this={ICONS[n.data.type]} class="h-4 w-4" />
       <Alert.Title>{TITLES[n.data.type]}</Alert.Title>
