@@ -6,9 +6,6 @@ const config = {
   content: ['./src/**/*.{html,js,svelte,ts}'],
   safelist: ['dark'],
   theme: {
-    colors: {
-      success: colors.green['500']
-    },
     container: {
       center: true,
       padding: '2rem',
@@ -18,6 +15,7 @@ const config = {
     },
     extend: {
       colors: {
+        success: colors.green['500'],
         border: 'hsl(var(--border) / <alpha-value>)',
         input: 'hsl(var(--input) / <alpha-value>)',
         ring: 'hsl(var(--ring) / <alpha-value>)',
