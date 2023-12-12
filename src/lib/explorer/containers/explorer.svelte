@@ -21,6 +21,7 @@
     CreateEntityForm,
     ContinueForm,
     EditEntityForm,
+    type ContinueFormData,
   } from '../components'
 
   export let explorerService: IExplorerService
@@ -72,6 +73,9 @@
   }
   function closeContinueDialog() {
     isContinueDialogOpen = false
+  }
+  function onContinueDialogSubmit({ mapType, ...rest }: ContinueFormData) {
+    explorerService.openMapWithSelectedPoints(mapType, rest)
   }
 
   let isEditDialogOpen = false
@@ -150,10 +154,10 @@
   <Dialog.Content>
     <ContinueForm
       {locationService}
-      {explorerService}
       {points}
       mapType={$mapType}
       onMapTypeChange={explorerService.setMapType}
+      onSubmit={onContinueDialogSubmit}
     />
   </Dialog.Content>
 </Dialog.Root>
