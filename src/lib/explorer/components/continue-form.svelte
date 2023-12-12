@@ -1,23 +1,33 @@
+<script lang="ts" context="module">
+  export interface FormData {
+    mapType: MapType
+    start?: GeoLocation
+    end?: GeoLocation
+  }
+</script>
+
 <script lang="ts">
   import { onMount } from 'svelte'
+  import type { Selected } from 'bits-ui'
 
   import { DEFAULT_LOCATION, type GeoLocation } from '@/lib/geo-location'
+  import { Checkbox } from '@/lib/components/checkbox'
+  import { Label } from '@/lib/components/label'
+  import { Button } from '@/lib/components/button'
+  import * as Select from '@/lib/components/select'
+  import type { INotificationsService } from '@/lib/notifications'
 
-  import {
-    MapType,
-    type IExplorerService,
-    type ILocationService,
-    type PointNode,
-    isMapType,
-  } from '../core'
+  import { MapType, type ILocationService, type PointNode } from '../core'
 
   import DynamicPoint, { PointType } from './dynamic-point.svelte'
 
   export let points: PointNode[]
   export let locationService: ILocationService
-  export let explorerService: IExplorerService
   export let mapType: MapType
   export let onMapTypeChange: (newMapType: MapType) => void
+  export let notificationsService: INotificationsService
+
+  export let onSubmit: (data: FormData) => void
 
   let addStartPoint = true
   let startLocation = DEFAULT_LOCATION
@@ -31,6 +41,13 @@
     endLocation = loc
   }
 
+  const items: Selected<MapType>[] = [
+    { label: 'Yandex', value: MapType.Yandex },
+    { label: '2GIS', value: MapType.DoubleGis },
+    { label: 'Google', value: MapType.Google },
+  ]
+  $: selected = items.find((item) => item.value === mapType)
+
   onMount(async () => {
     try {
       const loc = await locationService.getUserLocation()
@@ -40,28 +57,38 @@
       console.error(error)
     }
   })
-
-  function onSubmit() {
-    explorerService.openMapWithSelectedPoints(mapType, {
-      start: addStartPoint ? startLocation : undefined,
-      end: addEndPoint ? endLocation : undefined,
-    })
-  }
 </script>
 
-<form on:submit|preventDefault={onSubmit}>
-  <h3 class="font-bold text-lg mb-4">Setup route</h3>
+<form
+  class="flex flex-col gap-4"
+  on:submit|preventDefault={() =>
+    onSubmit({
+      mapType,
+      start: addStartPoint ? startLocation : undefined,
+      end: addEndPoint ? endLocation : undefined,
+    })}
+>
+  <h3 class="font-bold text-lg mb-2">Setup route</h3>
 
   <div class="flex flex-col gap-4">
-    <div class="form-control">
-      <label class="cursor-pointer flex flex-row gap-2 items-center">
-        <input type="checkbox" class="checkbox" bind:checked={addStartPoint} />
-        <span class="label-text font-bold">Add start point</span>
-      </label>
+    <div class="flex items-center gap-2">
+      <Checkbox
+        id="add-start-point"
+        bind:checked={addStartPoint}
+        aria-labelledby="add-start-point-label"
+      />
+      <Label
+        id="add-start-point-label"
+        for="add-start-point"
+        class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      >
+        Add start point
+      </Label>
     </div>
 
     {#if addStartPoint}
       <DynamicPoint
+        {notificationsService}
         location={startLocation}
         onLocationChange={setStartLocation}
         {points}
@@ -69,15 +96,24 @@
       />
     {/if}
 
-    <div class="form-control">
-      <label class="cursor-pointer flex flex-row gap-2 items-center">
-        <input type="checkbox" class="checkbox" bind:checked={addEndPoint} />
-        <span class="label-text font-bold">Add end point</span>
-      </label>
+    <div class="flex items-center gap-2">
+      <Checkbox
+        id="add-end-point"
+        bind:checked={addEndPoint}
+        aria-labelledby="add-end-point-label"
+      />
+      <Label
+        id="add-end-point-label"
+        for="add-end-point"
+        class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      >
+        Add end point
+      </Label>
     </div>
 
     {#if addEndPoint}
       <DynamicPoint
+        {notificationsService}
         location={endLocation}
         onLocationChange={setEndLocation}
         {points}
@@ -85,24 +121,28 @@
       />
     {/if}
   </div>
-  <div class="join mt-4 w-full">
-    <select
-      class="select select-primary join-item"
-      placeholder="Map provider"
-      value={mapType}
-      on:change={(e) => {
-        const { value } = e.currentTarget
-        if (isMapType(value)) {
-          onMapTypeChange(value)
-        }
-      }}
+  <Button type="submit" class="w-full">Open map</Button>
+  <div class="flex flex-col gap-2">
+    <Label id="map-provider-label" for="map-provider">Map provider</Label>
+    <Select.Root
+      {items}
+      {selected}
+      onSelectedChange={(v) => v && onMapTypeChange(v.value)}
     >
-      <option value={MapType.Yandex}>Yandex</option>
-      <option value={MapType.DoubleGis}>2GIS</option>
-      <option value={MapType.Google}>Google</option>
-    </select>
-    <button type="submit" class="join-item btn btn-primary grow"
-      >Open map</button
-    >
+      <Select.Trigger
+        class="w-full"
+        id="map-provider"
+        aria-labelledby="map-provider-label"
+      >
+        <Select.Value placeholder="Select a map provider" />
+      </Select.Trigger>
+      <Select.Content>
+        {#each items as item, i (item.value)}
+          <Select.Item label={item.label} value={item.value}
+            >{item.label}</Select.Item
+          >
+        {/each}
+      </Select.Content>
+    </Select.Root>
   </div>
 </form>

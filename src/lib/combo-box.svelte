@@ -1,65 +1,90 @@
 <script lang="ts" generics="T">
-  import { createCombobox } from 'svelte-headlessui'
-  import Transition from 'svelte-transition'
+  import { tick } from 'svelte'
+  import { Check, ChevronsUpDown } from 'lucide-svelte'
 
-  export let items: T[]
-  export let selected: T
+  import * as Command from '@/lib/components/command'
+  import * as Popover from '@/lib/components/popover'
+  import { Button } from '@/lib/components/button'
+  import { cn } from '@/lib/utils'
+
+  export let items: T[] = []
+  export let selected: T | null
+  export let defaultLabel = 'Select item...'
+  export let searchPlaceholder = 'Search item...'
   export let getItemLabel: (item: T) => string
-  export let getItemId: (item: T) => string | number
-  export let filter: (items: T[], search: string) => T[]
+  export let getItemId: (item: T) => string
+  export let filter: (items: T[], search: string) => T[] | Promise<T[]>
   export let onSelect: (item: T) => void
+  let className = ''
+  export { className as class }
+  export let direction: 'ltr' | 'rtl' | null = null
+  export let contentClass = ''
 
-  const combobox = createCombobox({ label: 'Actions', selected })
-  let key = 0
+  let open = false
+  let search = ''
 
-  function handleSelect(e: Event) {
-    const { detail } = e as CustomEvent
-    if (detail && 'selected' in detail) {
-      onSelect(detail.selected)
-    }
+  $: selectedItemId = selected && getItemId(selected)
+  $: selectedItemLabel =
+    selected === null ? defaultLabel : getItemLabel(selected)
+  $: filtered = filter(items, search)
+  // We want to refocus the trigger button when the user selects
+  // an item from the list so users can continue navigating the
+  // rest of the form with the keyboard.
+  function closeAndFocusTrigger(triggerId: string) {
+    open = false
+    search = ''
+    tick().then(() => {
+      document.getElementById(triggerId)?.focus()
+    })
   }
-
-  $: filtered = filter(items, $combobox.filter)
 </script>
 
-<div>
-  {#key key}
-    <input
-      use:combobox.input
-      on:click={combobox.open}
-      on:select={handleSelect}
-      class="input input-bordered w-full"
-      value={getItemLabel($combobox.selected)}
-    />
-  {/key}
-
-  <Transition
-    show={$combobox.expanded}
-    leave="transition ease-in duration-100"
-    leaveFrom="opacity-100"
-    leaveTo="opacity-0"
-    on:after-leave={() => {
-      combobox.reset()
-      key++
-    }}
-  >
-    <ul
-      use:combobox.items
-      class="absolute shadow menu z-[1] bg-base-100 rounded-box w-full max-w-[29rem]"
+<Popover.Root bind:open let:ids>
+  <Popover.Trigger asChild let:builder>
+    <Button
+      builders={[builder]}
+      variant="outline"
+      role="combobox"
+      aria-expanded={open}
+      class={cn('gap-2', className)}
+      dir={direction}
     >
-      {#each filtered as value (getItemId(value))}
-        {@const active = $combobox.active === value}
-        {@const selected = $combobox.selected === value}
-        <li use:combobox.item={{ value }}>
-          <a class:active class:font-bold={selected} class="truncate">
-            {getItemLabel(value)}
-          </a>
-        </li>
-      {:else}
-        <li>
-          <a class="disabled truncate">Nothing found</a>
-        </li>
-      {/each}
-    </ul>
-  </Transition>
-</div>
+      <span class="truncate">
+        {selectedItemLabel}
+      </span>
+      <ChevronsUpDown class="ml-auto h-4 w-4 shrink-0 opacity-50" />
+    </Button>
+  </Popover.Trigger>
+  <Popover.Content class={cn('p-0', contentClass)}>
+    <Command.Root shouldFilter={false}>
+      <Command.Input placeholder={searchPlaceholder} bind:value={search} />
+      <Command.Empty>
+        <slot name="no-results">Nothing found</slot>
+      </Command.Empty>
+      <Command.Group>
+        {#await filtered}
+          <Command.Item disabled>Loading...</Command.Item>
+        {:then items}
+          {#each items as item, _ (getItemId(item))}
+            {@const id = getItemId(item)}
+            <Command.Item
+              value={id}
+              onSelect={() => {
+                onSelect(item)
+                closeAndFocusTrigger(ids.trigger)
+              }}
+            >
+              <Check
+                class={cn(
+                  'mr-2 h-4 w-4',
+                  selectedItemId !== id && 'text-transparent'
+                )}
+              />
+              {getItemLabel(item)}
+            </Command.Item>
+          {/each}
+        {/await}
+      </Command.Group>
+    </Command.Root>
+  </Popover.Content>
+</Popover.Root>

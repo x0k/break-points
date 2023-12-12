@@ -2,6 +2,7 @@
   import type { Readable } from 'svelte/store'
 
   import Point from '@/lib/point.svelte'
+  import { Checkbox } from '@/lib/components/checkbox'
 
   import type { ExplorerNode, ExplorerNodeId, PointNode } from '../core'
 
@@ -13,6 +14,6 @@
 </script>
 
 <Point title={node.title} on:click={() => selectNode(node)}>
-  <input slot="prepend" type="checkbox" class="checkbox" checked={isSelected} />
+  <Checkbox slot="prepend" checked={isSelected} />
   <slot name="append" slot="append" />
 </Point>

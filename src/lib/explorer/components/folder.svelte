@@ -2,11 +2,16 @@
   import type { Readable } from 'svelte/store'
 
   import Folder from '@/lib/folder.svelte'
+  import { Checkbox } from '@/lib/components/checkbox'
+
+  import {
+    type ExplorerNode,
+    type ExplorerNodeId,
+    type FolderNode,
+    extractPointIds,
+  } from '../core'
 
   import Node from './node.svelte'
-
-  import type { ExplorerNode, ExplorerNodeId, FolderNode } from '../core'
-  import { extractPointIds } from '../core'
 
   export let node: FolderNode
   export let open: Readable<Set<ExplorerNodeId>>
@@ -16,20 +21,32 @@
 
   $: isOpen = $open.has(node.id)
   $: points = extractPointIds(node)
-  $: isSelected = points.length > 0 && points.every((id) => $selected.has(id))
-  $: indeterminate = !isSelected && points.some((id) => $selected.has(id))
+  let isSelected: boolean | 'indeterminate'
+  $: {
+    if (points.length === 0 || $selected.size === 0) {
+      isSelected = false
+    }
+    let i = 1
+    let isEverySelected = $selected.has(points[0])
+    while (i < points.length) {
+      const isPointSelected = $selected.has(points[i])
+      if (isEverySelected !== isPointSelected) {
+        break
+      }
+      isEverySelected = isEverySelected && isPointSelected
+      i++
+    }
+    isSelected = i === points.length ? isEverySelected : 'indeterminate'
+  }
 </script>
 
 <Folder title={node.title} open={isOpen} on:click={() => openFolder(node)}>
   <svelte:fragment slot="prepend">
-    {#key `${isSelected}${indeterminate}`}
-      <input
-        type="checkbox"
-        class="checkbox"
+    {#key isSelected}
+      <Checkbox
         checked={isSelected}
-        {indeterminate}
-        on:click|preventDefault|stopPropagation={() => selectNode(node)}
         disabled={points.length === 0}
+        on:click={() => selectNode(node)}
       />
     {/key}
   </svelte:fragment>

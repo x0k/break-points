@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { Plus, Trash, X } from 'lucide-svelte'
+  import { Pencil, Plus, Trash, X } from 'lucide-svelte'
 
   import type { INotificationsService } from '@/lib/notifications'
-  import Dialog from '@/lib/dialog.svelte'
+  import * as Dialog from '@/lib/components/dialog'
+  import { Button } from '@/lib/components/button'
 
   import {
     isFolder,
@@ -20,8 +21,10 @@
     Node,
     CreateEntityForm,
     ContinueForm,
+    EditEntityForm,
+    type ContinueFormData,
   } from '../components'
-  import EditEntityForm from '../components/edit-entity-form.svelte'
+  import { pluralize } from '@/lib/plural'
 
   export let explorerService: IExplorerService
   export let locationService: ILocationService
@@ -73,14 +76,14 @@
   function closeContinueDialog() {
     isContinueDialogOpen = false
   }
+  function onContinueDialogSubmit({ mapType, ...rest }: ContinueFormData) {
+    explorerService.openMapWithSelectedPoints(mapType, rest)
+  }
 
   let isEditDialogOpen = false
   let editableNodeId: ExplorerNodeId
-  function openEditDialog() {
-    if ($selected.size === 0) {
-      return
-    }
-    editableNodeId = $selected.values().next().value
+  function openEditDialog(nodeId: ExplorerNodeId) {
+    editableNodeId = nodeId
     isEditDialogOpen = true
   }
   function closeEditDialog() {
@@ -103,84 +106,100 @@
     >
       <svelte:fragment slot="append" let:node>
         {#if isFolder(node)}
-          <button
-            class="btn btn-xs btn-success"
-            on:click|stopPropagation={() => openCreateDialog(node.id)}
-            ><Plus size={16} /></button
+          <Button
+            variant="success"
+            size="xs"
+            on:click={() => openCreateDialog(node.id)}
+            ><Plus size={16} /></Button
           >
         {:else}
-          <span class="truncate font-thin grow-1" dir="rtl">
+          <span class="truncate font-thin ml-auto" dir="rtl">
             {node.address}
           </span>
         {/if}
-        <button
-          class="btn btn-xs btn-error"
-          on:click|stopPropagation={() => openRemoveDialog(node.id)}
-          ><Trash size={16} /></button
+        <Button
+          size="xs"
+          on:click={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+            openEditDialog(node.id)
+          }}
+        >
+          <Pencil />
+        </Button>
+        <Button
+          variant="destructive"
+          size="xs"
+          on:click={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+            openRemoveDialog(node.id)
+          }}><Trash size={16} /></Button
         >
       </svelte:fragment>
     </Node>
   {/each}
   {#if $selected.size === 0}
-    <button class="btn btn-accent" on:click={() => openCreateDialog()}>
+    <Button on:click={() => openCreateDialog()}>
       <Plus /> Add
-    </button>
+    </Button>
   {:else}
     <div class="flex flex-row gap-2">
-      {#if $selected.size === 1}
-        <button class="btn btn-primary grow" on:click={openEditDialog}>
-          Edit selected point
-        </button>
-      {:else}
-        <button class="btn btn-primary grow" on:click={openContinueDialog}
-          >Continue with {$selected.size} points</button
-        >
-      {/if}
-      <button
-        class="btn btn-secondary"
-        on:click={explorerService.clearSelection}
+      <Button class="grow" on:click={openContinueDialog}
+        >Continue with {$selected.size}
+        {pluralize($selected.size, 'point', 'points')}</Button
       >
+      <Button variant="destructive" on:click={explorerService.clearSelection}>
         <X />
-      </button>
+      </Button>
     </div>
   {/if}
 </div>
 
-<Dialog open={isContinueDialogOpen} onClose={closeContinueDialog}>
-  <ContinueForm
-    {locationService}
-    {explorerService}
-    {points}
-    mapType={$mapType}
-    onMapTypeChange={explorerService.setMapType}
-  />
-</Dialog>
+<Dialog.Root open={isContinueDialogOpen} onOpenChange={closeContinueDialog}>
+  <Dialog.Content>
+    <ContinueForm
+      {notificationsService}
+      {locationService}
+      {points}
+      mapType={$mapType}
+      onMapTypeChange={explorerService.setMapType}
+      onSubmit={onContinueDialogSubmit}
+    />
+  </Dialog.Content>
+</Dialog.Root>
 
-<Dialog open={isCreateDialogOpen} onClose={closeCreateDialog}>
-  <CreateEntityForm
-    {locationService}
-    {notificationsService}
-    parentId={createDialogOptions.parentId}
-    onSubmit={onCreateDialogSubmit}
-  />
-</Dialog>
-
-<Dialog open={isRemoveDialogOpen} onClose={closeRemoveDialog}>
-  <RemoveEntityForm
-    {nodes}
-    nodeId={removeDialogOptions.nodeId}
-    onSubmit={onRemoveDialogSubmit}
-  />
-</Dialog>
-
-<Dialog open={isEditDialogOpen} onClose={closeEditDialog}>
-  {#key editableNodeId}
-    <EditEntityForm
-      nodeId={editableNodeId}
+<Dialog.Root open={isCreateDialogOpen} onOpenChange={closeCreateDialog}>
+  <Dialog.Content>
+    <CreateEntityForm
       {locationService}
       {notificationsService}
-      {nodes}
-      onSubmit={onEditDialogSubmit}
+      parentId={createDialogOptions.parentId}
+      onSubmit={onCreateDialogSubmit}
     />
-  {/key}
-</Dialog>
+  </Dialog.Content>
+</Dialog.Root>
+
+<Dialog.Root open={isRemoveDialogOpen} onOpenChange={closeRemoveDialog}>
+  <Dialog.Content>
+    <RemoveEntityForm
+      {nodes}
+      nodeId={removeDialogOptions.nodeId}
+      onSubmit={onRemoveDialogSubmit}
+    />
+  </Dialog.Content>
+</Dialog.Root>
+
+<Dialog.Root open={isEditDialogOpen} onOpenChange={closeEditDialog}>
+  <Dialog.Content>
+    {#key editableNodeId}
+      <EditEntityForm
+        nodeId={editableNodeId}
+        {locationService}
+        {notificationsService}
+        {nodes}
+        onSubmit={onEditDialogSubmit}
+      />
+    {/key}
+  </Dialog.Content>
+</Dialog.Root>

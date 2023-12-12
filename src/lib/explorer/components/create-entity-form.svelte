@@ -1,20 +1,26 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { derived, writable } from 'svelte/store'
 
+  import * as RadioGroup from '@/lib/components/radio-group'
+  import { Label } from '@/lib/components/label'
+  import { Input } from '@/lib/components/input'
+  import { Button } from '@/lib/components/button'
   import { DEFAULT_LOCATION, type GeoLocation } from '@/lib/geo-location'
   import {
     NotificationType,
     type INotificationsService,
   } from '@/lib/notifications'
   import YandexMap from '@/lib/yandex-map.svelte'
+  import ComboBox from '@/lib/combo-box.svelte'
+  import { asyncDebounce } from '@/lib/debounce'
 
   import {
     NodeType,
     type ExplorerNodeId,
-    type CreateNode,
-    type ILocationService,
     type PlaceLocation,
+    type ILocationService,
+    type CreateNode,
+    getPlaceAddress,
   } from '../core'
 
   export let parentId: ExplorerNodeId | null = null
@@ -24,18 +30,29 @@
 
   let title: string
   let nodeType = NodeType.Point
-  let search = writable('')
   let userLocation: GeoLocation = DEFAULT_LOCATION
-  $: location = userLocation
-  let isLocationUpdatedBySearch = false
-  let address = ''
-  let pointTitleElement: HTMLInputElement
+  let userAddress = ''
 
-  // TODO: Should be debounced
-  async function updateAddress(loc: GeoLocation) {
+  const searchPlace = asyncDebounce(
+    async (_: PlaceLocation[], search: string) =>
+      search.length > 3
+        ? await locationService.searchPlaceByAddress(search, userLocation)
+        : [],
+    500
+  )
+  let isAddressUpdateNeeded = false
+  $: selectedPlace = {
+    location: userLocation,
+    address: userAddress,
+  }
+
+  const updateAddress = asyncDebounce(async ({ location }: PlaceLocation) => {
     try {
-      const place = await locationService.searchPlaceByLocation(loc)
-      address = place.address
+      const place = await locationService.searchPlaceByLocation(location)
+      // Check that locations is not changed during search
+      if (selectedPlace.location === location) {
+        selectedPlace.address = place.address
+      }
     } catch (error) {
       notificationsService.showNotification({
         type: NotificationType.Error,
@@ -44,33 +61,22 @@
             ? error.message
             : 'Unknown error during address update',
       })
+    } finally {
+      isAddressUpdateNeeded = false
     }
-  }
+  }, 500)
 
-  $: if (!isLocationUpdatedBySearch) {
-    updateAddress(location)
+  $: if (isAddressUpdateNeeded) {
+    updateAddress(selectedPlace)
   }
-
-  let suggestions = derived(
-    search,
-    (addr, set) => {
-      let id: NodeJS.Timeout
-      if (addr.length > 3) {
-        id = setTimeout(
-          async () =>
-            set(await locationService.searchPlaceByAddress(addr, userLocation)),
-          400
-        )
-      }
-      return () => clearTimeout(id)
-    },
-    [] as PlaceLocation[]
-  )
 
   onMount(async () => {
     if (locationService.isUserLocationAvailable) {
       try {
         userLocation = await locationService.getUserLocation()
+        const userPlace =
+          await locationService.searchPlaceByLocation(userLocation)
+        userAddress = userPlace.address
       } catch (error) {
         notificationsService.showNotification({
           type: NotificationType.Error,
@@ -83,116 +89,86 @@
     }
   })
 
-  function onPositionUpdate(loc: GeoLocation) {
-    isLocationUpdatedBySearch = false
-    location = loc
+  function onPositionUpdate(location: GeoLocation) {
+    isAddressUpdateNeeded = true
+    selectedPlace = { location, address: '' }
   }
 
   function resetForm() {
     title = ''
-    search.set('')
     nodeType = NodeType.Point
-    location = userLocation
-    isLocationUpdatedBySearch = false
-    address = ''
+    isAddressUpdateNeeded = false
+    selectedPlace = {
+      location: userLocation,
+      address: userAddress,
+    }
   }
 </script>
 
 <form
+  class="flex flex-col gap-4 min-w-0"
   on:submit|preventDefault={() => {
     onSubmit({
       title,
       parentId,
-      location,
       type: nodeType,
-      address,
+      place: selectedPlace,
     })
     resetForm()
   }}
 >
   <h3 class="font-bold text-lg">Create entity</h3>
 
-  <div class="flex flex-row gap-4">
-    <div class="form-control">
-      <label class="label cursor-pointer gap-2">
-        <input
-          bind:group={nodeType}
-          type="radio"
-          name="node-type"
-          class="radio"
-          value={NodeType.Point}
-        />
-        <span class="label-text">Point</span>
-      </label>
+  <RadioGroup.Root bind:value={nodeType}>
+    <div class="flex items-center gap-2">
+      <RadioGroup.Item value={NodeType.Point} id="radio-point" />
+      <Label for="radio-point">Point</Label>
+      <span />
+      <RadioGroup.Item value={NodeType.Folder} id="radio-folder" />
+      <Label for="radio-folder">Folder</Label>
     </div>
-    <div class="form-control">
-      <label class="label cursor-pointer gap-2">
-        <input
-          bind:group={nodeType}
-          type="radio"
-          name="node-type"
-          class="radio"
-          value={NodeType.Folder}
-        />
-        <span class="label-text">Folder</span>
-      </label>
-    </div>
-  </div>
+  </RadioGroup.Root>
+
   {#if nodeType === NodeType.Folder}
-    <div class="form-control w-full">
-      <input
-        placeholder="Folder name"
+    <div class="flex flex-col w-full gap-2">
+      <Label for="folder-name">Folder name</Label>
+      <Input
         type="text"
-        class="mt-2 input input-bordered w-full"
-        required
+        id="folder-name"
+        placeholder="My folder"
         bind:value={title}
       />
     </div>
   {:else}
-    <div class="form-control w-full">
-      <input
-        bind:this={pointTitleElement}
-        placeholder="Point name"
+    <div class="flex flex-col w-full gap-2">
+      <Label for="point-name">Point name</Label>
+      <Input
         type="text"
-        class="mt-2 input input-bordered w-full"
-        required
+        id="point-name"
+        placeholder="My point"
         bind:value={title}
+        required
       />
     </div>
-    <div class="form-control w-full pb-2 dropdown dropdown-bottom">
-      <input
-        placeholder="Search by address"
-        tabindex="0"
-        type="text"
-        class="mt-2 input input-bordered w-full"
-        bind:value={$search}
-      />
-      {#if $suggestions.length > 0}
-        <ul
-          tabindex="0"
-          class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box max-w-[28rem] w-full text-ellipsis"
-        >
-          {#each $suggestions as s (s.address)}
-            <li>
-              <a
-                on:click={() => {
-                  isLocationUpdatedBySearch = true
-                  address = s.address
-                  location = s.location
-                  if (pointTitleElement) {
-                    pointTitleElement.focus()
-                  }
-                }}>{s.address}</a
-              >
-            </li>
-          {/each}
-        </ul>
-      {/if}
-    </div>
-    <YandexMap {location} {onPositionUpdate} />
-    <p class="pt-2">Address: {address}</p>
+    <ComboBox
+      class="flex-row-reverse"
+      direction="rtl"
+      contentClass="w-[calc(100%-3rem)]"
+      searchPlaceholder="Search address..."
+      filter={searchPlace}
+      getItemId={getPlaceAddress}
+      getItemLabel={getPlaceAddress}
+      selected={selectedPlace}
+      onSelect={(place) => {
+        isAddressUpdateNeeded = false
+        selectedPlace = place
+      }}
+    />
+    <YandexMap
+      {notificationsService}
+      location={selectedPlace.location}
+      {onPositionUpdate}
+    />
   {/if}
-  <div class="modal-action">
-    <button type="submit" class="btn btn-primary">Create</button>
-  </div>
+  <Button variant="success" class="w-full" type="submit">Create</Button>
 </form>

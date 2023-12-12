@@ -8,9 +8,12 @@
 <script lang="ts">
   import { matchSorter } from 'match-sorter'
 
-  import { isEqual, type GeoLocation } from '@/lib/geo-location'
-  import ComboBox from '@/lib/combo-box.svelte'
   import YandexMap from '@/lib/yandex-map.svelte'
+  import { isEqual, type GeoLocation } from '@/lib/geo-location'
+  import * as RadioGroup from '@/lib/components/radio-group'
+  import ComboBox from '@/lib/combo-box.svelte'
+  import { Label } from '@/lib/components/label'
+  import { type INotificationsService } from '@/lib/notifications'
 
   import { getNodeId, getNodeTitle, type PointNode } from '../core'
 
@@ -18,8 +21,7 @@
   export let points: PointNode[]
   export let location: GeoLocation
   export let onLocationChange: (loc: GeoLocation) => void
-
-  const groupId = Date.now().toString(16)
+  export let notificationsService: INotificationsService
 
   let selected = points[0]
 
@@ -52,42 +54,28 @@
 </script>
 
 <div class="flex flex-row gap-4" on:change={updateLocation}>
-  <div class="form-control">
-    <label class="label cursor-pointer gap-2">
-      <input
-        bind:group={pointType}
-        on:change
-        type="radio"
-        name="point-type-{groupId}"
-        class="radio"
-        value={PointType.Location}
-      />
-      <span class="label-text">Location</span>
-    </label>
-  </div>
-  <div class="form-control">
-    <label class="label cursor-pointer gap-2">
-      <input
-        bind:group={pointType}
-        on:change
-        type="radio"
-        name="point-type-{groupId}"
-        class="radio"
-        value={PointType.Select}
-      />
-      <span class="label-text">Select point</span>
-    </label>
-  </div>
+  <RadioGroup.Root bind:value={pointType}>
+    <div class="flex items-center gap-2">
+      <RadioGroup.Item value={PointType.Location} id="radio-location" />
+      <Label for="radio-location">Location on map</Label>
+      <span />
+      <RadioGroup.Item value={PointType.Select} id="radio-select" />
+      <Label for="radio-select">Choose from my points</Label>
+    </div>
+  </RadioGroup.Root>
 </div>
 
 {#if pointType === PointType.Location}
   <YandexMap
+    {notificationsService}
     {location}
     onPositionUpdate={onLocationChange}
     class="w-full h-[40vh]"
   />
 {:else}
   <ComboBox
+    class="w-full"
+    contentClass="w-[calc(100%-3rem)]"
     items={points}
     {filter}
     getItemId={getNodeId}
