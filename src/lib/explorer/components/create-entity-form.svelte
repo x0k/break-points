@@ -49,7 +49,8 @@
   const updateAddress = asyncDebounce(async ({ location }: PlaceLocation) => {
     try {
       const place = await locationService.searchPlaceByLocation(location)
-      if (selectedPlace?.location === location) {
+      // Check that locations is not changed during search
+      if (selectedPlace.location === location) {
         selectedPlace.address = place.address
       }
     } catch (error) {
@@ -65,7 +66,7 @@
     }
   }, 500)
 
-  $: if (selectedPlace && isAddressUpdateNeeded) {
+  $: if (isAddressUpdateNeeded) {
     updateAddress(selectedPlace)
   }
 
@@ -108,27 +109,12 @@
 <form
   class="flex flex-col gap-4 min-w-0"
   on:submit|preventDefault={() => {
-    if (nodeType === NodeType.Point) {
-      if (!selectedPlace) {
-        notificationsService.showNotification({
-          type: NotificationType.Error,
-          message: 'Point location is required',
-        })
-        return
-      }
-      onSubmit({
-        title,
-        parentId,
-        type: nodeType,
-        place: selectedPlace,
-      })
-    } else if (nodeType === NodeType.Folder) {
-      onSubmit({
-        title,
-        parentId,
-        type: nodeType,
-      })
-    }
+    onSubmit({
+      title,
+      parentId,
+      type: nodeType,
+      place: selectedPlace,
+    })
     resetForm()
   }}
 >
@@ -168,6 +154,7 @@
     <ComboBox
       class="w-full"
       contentClass="w-[calc(100%-3rem)]"
+      searchPlaceholder="Search address..."
       filter={searchPlace}
       getItemId={getPlaceAddress}
       getItemLabel={getPlaceAddress}
@@ -179,7 +166,7 @@
     />
     <YandexMap
       {notificationsService}
-      location={selectedPlace?.location ?? userLocation}
+      location={selectedPlace.location}
       {onPositionUpdate}
     />
   {/if}
