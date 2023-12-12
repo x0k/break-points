@@ -25,7 +25,7 @@
   >
     <h3 class="font-bold text-lg">Remove {NODE_TYPE_TITLES[node.type]}</h3>
     <p>You really want to delete {node.title} {NODE_TYPE_TITLES[node.type]}?</p>
-    <Button type="submit" class="w-full">Delete</Button>
+    <Button variant="destructive" type="submit" class="w-full">Delete</Button>
   </form>
 {:else}
   <p>Node not found</p>

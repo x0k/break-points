@@ -169,5 +169,5 @@
       {onPositionUpdate}
     />
   {/if}
-  <Button class="w-full" type="submit">Create</Button>
+  <Button variant="success" class="w-full" type="submit">Create</Button>
 </form>
