@@ -78,7 +78,6 @@
           await locationService.searchPlaceByLocation(userLocation)
         userAddress = userPlace.address
       } catch (error) {
-        console.log('Notification', notificationsService)
         notificationsService.showNotification({
           type: NotificationType.Error,
           message:

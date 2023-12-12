@@ -70,7 +70,6 @@
       try {
         userLocation = await locationService.getUserLocation()
       } catch (error) {
-        console.log('Notification', notificationsService)
         notificationsService.showNotification({
           type: NotificationType.Error,
           message:
