@@ -116,10 +116,10 @@
     >
   </div>
   <div class="flex gap-4 px-2 align-baseline">
-    <Button on:click={exportSelectedNodes}>
+    <Button variant="ghost" on:click={exportSelectedNodes}>
       <Upload class="mr-2" /> Export
     </Button>
-    <Button on:click={importPoints}>
+    <Button variant="ghost" on:click={importPoints}>
       <Download class="mr-2" /> Import
     </Button>
   </div>

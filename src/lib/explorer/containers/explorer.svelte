@@ -3,6 +3,7 @@
 
   import type { INotificationsService } from '@/lib/notifications'
   import * as Dialog from '@/lib/components/dialog'
+  import { Button } from '@/lib/components/button'
 
   import {
     isFolder,
@@ -107,45 +108,43 @@
     >
       <svelte:fragment slot="append" let:node>
         {#if isFolder(node)}
-          <button
-            class="btn btn-xs btn-success"
-            on:click|stopPropagation={() => openCreateDialog(node.id)}
-            ><Plus size={16} /></button
+          <Button
+            variant="success"
+            size="xs"
+            on:click={() => openCreateDialog(node.id)}
+            ><Plus size={16} /></Button
           >
         {:else}
           <span class="truncate font-thin grow-1 ml-auto" dir="rtl">
             {node.address}
           </span>
         {/if}
-        <button
-          class="btn btn-xs btn-error"
-          on:click|stopPropagation={() => openRemoveDialog(node.id)}
-          ><Trash size={16} /></button
+        <Button
+          variant="destructive"
+          size="xs"
+          on:click={() => openRemoveDialog(node.id)}><Trash size={16} /></Button
         >
       </svelte:fragment>
     </Node>
   {/each}
   {#if $selected.size === 0}
-    <button class="btn btn-accent" on:click={() => openCreateDialog()}>
+    <Button on:click={() => openCreateDialog()}>
       <Plus /> Add
-    </button>
+    </Button>
   {:else}
     <div class="flex flex-row gap-2">
       {#if $selected.size === 1}
-        <button class="btn btn-primary grow" on:click={openEditDialog}>
+        <Button class="grow" on:click={openEditDialog}>
           Edit selected point
-        </button>
+        </Button>
       {:else}
-        <button class="btn btn-primary grow" on:click={openContinueDialog}
-          >Continue with {$selected.size} points</button
+        <Button class="grow" on:click={openContinueDialog}
+          >Continue with {$selected.size} points</Button
         >
       {/if}
-      <button
-        class="btn btn-secondary"
-        on:click={explorerService.clearSelection}
-      >
+      <Button variant="destructive" on:click={explorerService.clearSelection}>
         <X />
-      </button>
+      </Button>
     </div>
   {/if}
 </div>

@@ -8,14 +8,13 @@
 <div>
   <div class="flex items-center gap-2 w-full">
     <slot name="prepend" />
-    <button class="flex items-center gap-2 w-full" on:click>
+    <button class="flex items-center gap-2 grow" on:click>
       <Folder class="min-w-[1.5rem]" />
       <span>
         {title}
       </span>
-      <div class="flex-1" />
-      <slot name="append" />
     </button>
+    <slot name="append" />
   </div>
   <div class:hidden={!open}>
     <slot />
