@@ -15,6 +15,7 @@
   import { Label } from '@/lib/components/label'
   import { Button } from '@/lib/components/button'
   import * as Select from '@/lib/components/select'
+  import type { INotificationsService } from '@/lib/notifications'
 
   import { MapType, type ILocationService, type PointNode } from '../core'
 
@@ -24,6 +25,7 @@
   export let locationService: ILocationService
   export let mapType: MapType
   export let onMapTypeChange: (newMapType: MapType) => void
+  export let notificationsService: INotificationsService
 
   export let onSubmit: (data: FormData) => void
 
@@ -86,6 +88,7 @@
 
     {#if addStartPoint}
       <DynamicPoint
+        {notificationsService}
         location={startLocation}
         onLocationChange={setStartLocation}
         {points}
@@ -110,6 +113,7 @@
 
     {#if addEndPoint}
       <DynamicPoint
+        {notificationsService}
         location={endLocation}
         onLocationChange={setEndLocation}
         {points}

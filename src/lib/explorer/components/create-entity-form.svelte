@@ -178,6 +178,7 @@
       }}
     />
     <YandexMap
+      {notificationsService}
       location={selectedPlace?.location ?? userLocation}
       {onPositionUpdate}
     />

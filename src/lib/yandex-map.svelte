@@ -3,11 +3,17 @@
   import type { YMap, YMapListener } from '@yandex/ymaps3-types'
   import type { YMapDefaultMarker } from '@yandex/ymaps3-types/packages/markers'
 
+  import {
+    type INotificationsService,
+    NotificationType,
+  } from '@/lib/notifications'
+
   import { type GeoLocation, makeGeoLocation, toPair } from './geo-location'
 
   export let onPositionUpdate: (location: GeoLocation) => void
   export let location: GeoLocation
   export let zoom = 11
+  export let notificationsService: INotificationsService
   let className = 'w-full h-[60vh]'
   export { className as class }
 
@@ -28,7 +34,15 @@
   }
 
   onMount(async () => {
-    await ymaps3.ready
+    try {
+      await ymaps3.ready
+    } catch (error) {
+      notificationsService.showNotification({
+        type: NotificationType.Error,
+        message: `Failed to load yandex maps cause: "${error}"`,
+      })
+      return
+    }
 
     map = new ymaps3.YMap(mapElement, {
       location: {

@@ -153,6 +153,7 @@
 <Dialog.Root open={isContinueDialogOpen} onOpenChange={closeContinueDialog}>
   <Dialog.Content>
     <ContinueForm
+      {notificationsService}
       {locationService}
       {points}
       mapType={$mapType}

@@ -128,7 +128,7 @@
       </ul>
     {/if}
   </div>
-  <YandexMap zoom={14} {location} {onPositionUpdate} />
+  <YandexMap {notificationsService} zoom={14} {location} {onPositionUpdate} />
   <p>Address: {address}</p>
   <div class="modal-action">
     <button type="submit" class="btn btn-primary">Save</button>
