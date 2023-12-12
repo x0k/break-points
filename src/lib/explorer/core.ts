@@ -28,10 +28,18 @@ export interface FolderNode extends AbstractNode<NodeType.Folder> {
   children: ExplorerNode[]
 }
 
-export interface PointNode extends AbstractNode<NodeType.Point> {
+export interface PlaceLocation {
   location: GeoLocation
   address: string
 }
+
+export function getPlaceAddress(place: PlaceLocation): string {
+  return place.address
+}
+
+export interface PointNode
+  extends AbstractNode<NodeType.Point>,
+    PlaceLocation {}
 
 export interface CreateFolderNode {
   type: NodeType.Folder
@@ -43,8 +51,7 @@ export interface CreatePointNode {
   type: NodeType.Point
   title: string
   parentId: ExplorerNodeId | null
-  location: GeoLocation
-  address: string
+  place: PlaceLocation
 }
 
 export type CreateNode = CreateFolderNode | CreatePointNode
@@ -80,11 +87,6 @@ export interface IExplorerService {
   removeNode(node: ExplorerNode): void
   clearSelection(): void
   openMapWithSelectedPoints(mapType: MapType, options?: BoundaryLocations): void
-}
-
-export interface PlaceLocation {
-  location: GeoLocation
-  address: string
 }
 
 export interface ILocationService {
@@ -198,8 +200,8 @@ export function createPointNode(data: CreatePointNode): PointNode {
     id: Date.now().toString(16),
     title: data.title,
     type: NodeType.Point,
-    location: data.location,
-    address: data.address,
+    location: data.place.location,
+    address: data.place.address,
   }
 }
 
