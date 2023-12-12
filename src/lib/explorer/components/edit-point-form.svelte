@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { derived, writable } from 'svelte/store'
 
   import { DEFAULT_LOCATION, type GeoLocation } from '@/lib/geo-location'
   import {
@@ -8,8 +7,18 @@
     NotificationType,
   } from '@/lib/notifications'
   import YandexMap from '@/lib/yandex-map.svelte'
+  import ComboBox from '@/lib/combo-box.svelte'
+  import { Label } from '@/lib/components/label'
+  import { Input } from '@/lib/components/input'
+  import { Button } from '@/lib/components/button'
+  import { asyncDebounce } from '@/lib/debounce'
 
-  import type { ILocationService, PlaceLocation, PointNode } from '../core'
+  import {
+    getPlaceAddress,
+    type ILocationService,
+    type PlaceLocation,
+    type PointNode,
+  } from '../core'
 
   export let node: PointNode
   export let onSubmit: (node: PointNode) => void
@@ -17,18 +26,28 @@
   export let notificationsService: INotificationsService
 
   let title = node.title
-  let search = writable('')
   let userLocation = DEFAULT_LOCATION
-  let location = node.location
-  let isLocationUpdatedBySearch = false
-  let address = node.address
-  let pointTitleElement: HTMLInputElement
 
-  // TODO: Should be debounced
-  async function updateAddress(loc: GeoLocation) {
+  const searchPlace = asyncDebounce(
+    async (_: PlaceLocation[], search: string) =>
+      search.length > 3
+        ? await locationService.searchPlaceByAddress(search, userLocation)
+        : [],
+    500
+  )
+  let isAddressUpdateNeeded = false
+  let selectedPlace = {
+    location: node.location,
+    address: node.address,
+  }
+
+  const updateAddress = asyncDebounce(async ({ location }: PlaceLocation) => {
     try {
-      const place = await locationService.searchPlaceByLocation(loc)
-      address = place.address
+      const place = await locationService.searchPlaceByLocation(location)
+      // Check that locations is not changed during search
+      if (selectedPlace.location === location) {
+        selectedPlace.address = place.address
+      }
     } catch (error) {
       notificationsService.showNotification({
         type: NotificationType.Error,
@@ -37,34 +56,21 @@
             ? error.message
             : 'Unknown error during address update',
       })
+    } finally {
+      isAddressUpdateNeeded = false
     }
-  }
+  }, 500)
 
-  $: if (!isLocationUpdatedBySearch) {
-    updateAddress(location)
+  $: if (isAddressUpdateNeeded) {
+    updateAddress(selectedPlace)
   }
-
-  let suggestions = derived(
-    search,
-    (addr, set) => {
-      let id: NodeJS.Timeout
-      if (addr.length > 3) {
-        id = setTimeout(
-          async () =>
-            set(await locationService.searchPlaceByAddress(addr, userLocation)),
-          400
-        )
-      }
-      return () => clearTimeout(id)
-    },
-    [] as PlaceLocation[]
-  )
 
   onMount(async () => {
     if (locationService.isUserLocationAvailable) {
       try {
         userLocation = await locationService.getUserLocation()
       } catch (error) {
+        console.log('Notification', notificationsService)
         notificationsService.showNotification({
           type: NotificationType.Error,
           message:
@@ -76,61 +82,46 @@
     }
   })
 
-  function onPositionUpdate(loc: GeoLocation) {
-    isLocationUpdatedBySearch = false
-    location = loc
+  function onPositionUpdate(location: GeoLocation) {
+    isAddressUpdateNeeded = true
+    selectedPlace = { location, address: '' }
   }
 </script>
 
 <form
   on:submit|preventDefault={() =>
-    onSubmit({ ...node, title, address, location })}
-  class="flex flex-col gap-2"
+    onSubmit({ ...node, ...selectedPlace, title })}
+  class="flex flex-col gap-4"
 >
   <h3 class="font-bold text-lg">Edit point</h3>
-  <div class="form-control w-full">
-    <input
-      bind:this={pointTitleElement}
-      placeholder="Point name"
+  <div class="flex flex-col w-full gap-2">
+    <Label for="point-name">Point name</Label>
+    <Input
       type="text"
-      class="mt-2 input input-bordered w-full"
-      required
+      id="point-name"
+      placeholder="My point"
       bind:value={title}
+      required
     />
   </div>
-  <div class="form-control w-full pb-2 dropdown dropdown-bottom">
-    <input
-      placeholder="Search by address"
-      tabindex="0"
-      type="text"
-      class="mt-2 input input-bordered w-full"
-      bind:value={$search}
-    />
-    {#if $suggestions.length > 0}
-      <ul
-        tabindex="0"
-        class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box max-w-[28rem] w-full text-ellipsis"
-      >
-        {#each $suggestions as s (s.address)}
-          <li>
-            <a
-              on:click={() => {
-                isLocationUpdatedBySearch = true
-                address = s.address
-                location = s.location
-                if (pointTitleElement) {
-                  pointTitleElement.focus()
-                }
-              }}>{s.address}</a
-            >
-          </li>
-        {/each}
-      </ul>
-    {/if}
-  </div>
-  <YandexMap {notificationsService} zoom={14} {location} {onPositionUpdate} />
-  <p>Address: {address}</p>
-  <div class="modal-action">
-    <button type="submit" class="btn btn-primary">Save</button>
-  </div>
+  <ComboBox
+    class="w-full"
+    contentClass="w-[calc(100%-3rem)]"
+    searchPlaceholder="Search address..."
+    filter={searchPlace}
+    getItemId={getPlaceAddress}
+    getItemLabel={getPlaceAddress}
+    selected={selectedPlace}
+    onSelect={(place) => {
+      isAddressUpdateNeeded = false
+      selectedPlace = place
+    }}
+  />
+  <YandexMap
+    {notificationsService}
+    zoom={14}
+    location={selectedPlace.location}
+    {onPositionUpdate}
+  />
+  <Button type="submit" class="w-full">Save</Button>
 </form>
