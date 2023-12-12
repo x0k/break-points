@@ -6,15 +6,17 @@
 </script>
 
 <div>
-  <button class="flex gap-2 w-full" on:click>
+  <div class="flex items-center gap-2 w-full">
     <slot name="prepend" />
-    <Folder class="min-w-[1.5rem]" />
-    <span>
-      {title}
-    </span>
-    <div class="flex-1" />
-    <slot name="append" />
-  </button>
+    <button class="flex items-center gap-2 w-full" on:click>
+      <Folder class="min-w-[1.5rem]" />
+      <span>
+        {title}
+      </span>
+      <div class="flex-1" />
+      <slot name="append" />
+    </button>
+  </div>
   <div class:hidden={!open}>
     <slot />
   </div>
