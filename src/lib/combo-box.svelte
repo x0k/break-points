@@ -17,6 +17,7 @@
   export let onSelect: (item: T) => void
   let className = ''
   export { className as class }
+  export let direction: 'ltr' | 'rtl' | null = null
   export let contentClass = ''
 
   let open = false
@@ -45,7 +46,8 @@
       variant="outline"
       role="combobox"
       aria-expanded={open}
-      class={cn('w-[200px] justify-between', className)}
+      class={cn('gap-2', className)}
+      dir={direction}
     >
       <span class="truncate">
         {selectedItemLabel}
@@ -53,7 +55,7 @@
       <ChevronsUpDown class="ml-auto h-4 w-4 shrink-0 opacity-50" />
     </Button>
   </Popover.Trigger>
-  <Popover.Content class={cn('w-[200px] p-0', contentClass)}>
+  <Popover.Content class={cn('p-0', contentClass)}>
     <Command.Root shouldFilter={false}>
       <Command.Input placeholder={searchPlaceholder} bind:value={search} />
       <Command.Empty>

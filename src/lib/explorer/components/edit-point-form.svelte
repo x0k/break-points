@@ -90,7 +90,7 @@
 <form
   on:submit|preventDefault={() =>
     onSubmit({ ...node, ...selectedPlace, title })}
-  class="flex flex-col gap-4"
+  class="flex flex-col gap-4 min-w-0"
 >
   <h3 class="font-bold text-lg">Edit point</h3>
   <div class="flex flex-col w-full gap-2">
@@ -104,7 +104,8 @@
     />
   </div>
   <ComboBox
-    class="w-full"
+    class="flex-row-reverse"
+    direction="rtl"
     contentClass="w-[calc(100%-3rem)]"
     searchPlaceholder="Search address..."
     filter={searchPlace}

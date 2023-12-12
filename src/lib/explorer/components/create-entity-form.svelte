@@ -151,7 +151,8 @@
       />
     </div>
     <ComboBox
-      class="w-full"
+      class="flex-row-reverse"
+      direction="rtl"
       contentClass="w-[calc(100%-3rem)]"
       searchPlaceholder="Search address..."
       filter={searchPlace}
