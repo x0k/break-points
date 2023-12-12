@@ -24,7 +24,7 @@
 </script>
 
 <div
-  class="fixed bottom-0 p-4 whitespace-nowrap max-w-fit flex flex-col gap-2 end-0 start-auto top-auto"
+  class="z-[500] fixed bottom-0 p-4 whitespace-nowrap max-w-fit flex flex-col gap-2 end-0 start-auto top-auto"
 >
   {#each $notifications as n (n.id)}
     <Alert.Root
@@ -33,6 +33,7 @@
         : n.data.type === NotificationType.Success
           ? 'success'
           : 'default'}
+      class="bg-primary-foreground"
     >
       <svelte:component this={ICONS[n.data.type]} class="h-4 w-4" />
       <Alert.Title>{TITLES[n.data.type]}</Alert.Title>
