@@ -8,9 +8,9 @@
 <script lang="ts">
   import { matchSorter } from 'match-sorter'
 
-  import { isEqual, type GeoLocation } from '@/lib/geo-location'
-  import ComboBox from '@/lib/combo-box.svelte'
   import YandexMap from '@/lib/yandex-map.svelte'
+  import { isEqual, type GeoLocation } from '@/lib/geo-location'
+  import ComboBox from '@/lib/combo-box.svelte';
 
   import { getNodeId, getNodeTitle, type PointNode } from '../core'
 
@@ -88,6 +88,8 @@
   />
 {:else}
   <ComboBox
+    class="w-full"
+    contentClass="w-[calc(100%-3rem)]"
     items={points}
     {filter}
     getItemId={getNodeId}
