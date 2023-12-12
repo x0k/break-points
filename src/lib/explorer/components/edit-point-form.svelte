@@ -123,5 +123,5 @@
     location={selectedPlace.location}
     {onPositionUpdate}
   />
-  <Button type="submit" class="w-full">Save</Button>
+  <Button variant="success" type="submit" class="w-full">Save</Button>
 </form>
