@@ -38,7 +38,7 @@
       search.length > 3
         ? await locationService.searchPlaceByAddress(search, userLocation)
         : [],
-    500
+    1000
   )
   let isAddressUpdateNeeded = false
   $: selectedPlace = {
@@ -64,7 +64,7 @@
     } finally {
       isAddressUpdateNeeded = false
     }
-  }, 500)
+  }, 400)
 
   $: if (isAddressUpdateNeeded) {
     updateAddress(selectedPlace)
