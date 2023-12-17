@@ -60,7 +60,7 @@
 </script>
 
 <form
-  class="flex flex-col gap-4"
+  class="flex flex-col gap-4 min-w-0"
   on:submit|preventDefault={() =>
     onSubmit({
       mapType,
@@ -88,6 +88,8 @@
 
     {#if addStartPoint}
       <DynamicPoint
+        id="start-point"
+        {locationService}
         {notificationsService}
         location={startLocation}
         onLocationChange={setStartLocation}
@@ -113,6 +115,8 @@
 
     {#if addEndPoint}
       <DynamicPoint
+        id="end-point"
+        {locationService}
         {notificationsService}
         location={endLocation}
         onLocationChange={setEndLocation}
@@ -121,7 +125,6 @@
       />
     {/if}
   </div>
-  <Button type="submit" class="w-full">Open map</Button>
   <div class="flex flex-col gap-2">
     <Label id="map-provider-label" for="map-provider">Map provider</Label>
     <Select.Root
@@ -145,4 +148,5 @@
       </Select.Content>
     </Select.Root>
   </div>
+  <Button type="submit" class="w-full">Open map</Button>
 </form>
