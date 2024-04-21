@@ -12,6 +12,7 @@ export default defineConfig({
     svelte(),
     VitePWA({
       manifest: {
+        theme_color: '#42b883',
         name: 'Break Points',
         short_name: 'BPoints',
         background_color: '#030711',
